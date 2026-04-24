@@ -1,4 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
+
+// Utils
+import 'utils/routes.dart';
+
+// Providers
+import 'providers/auth_provider.dart';
 
 void main() {
   runApp(const PurrCatApp());
@@ -9,19 +17,18 @@ class PurrCatApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'PurrCat App',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.orange),
-        useMaterial3: true,
-      ),
-      home: const Scaffold(
-        body: Center(
-          child: Text(
-            'PurrCat App',
-            style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
-          ),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
+      ],
+      child: MaterialApp.router(
+        title: 'PurrCat App',
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.orange),
+          useMaterial3: true,
         ),
+        routerConfig: router,
+        debugShowCheckedModeBanner: false,
       ),
     );
   }

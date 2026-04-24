@@ -19,18 +19,12 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Future<void> _checkAuth() async {
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    await authProvider.checkAuthStatus();
-
     // Simulate splash screen delay
     await Future.delayed(const Duration(seconds: 2));
 
     if (mounted) {
-      if (authProvider.isAuthenticated) {
-        context.go('/');
-      } else {
-        context.go('/login');
-      }
+      // Langsung buka feed tanpa cek authentication
+      context.go('/');
     }
   }
 

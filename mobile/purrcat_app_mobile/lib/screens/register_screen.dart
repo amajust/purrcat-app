@@ -83,7 +83,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     width: 100,
                     height: 100,
                     decoration: BoxDecoration(
-                      color: Colors.orange,
+                      color: const Color(0xFFA03A57),
                       borderRadius: BorderRadius.circular(50),
                     ),
                     child: const Icon(
@@ -214,7 +214,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ElevatedButton(
                   onPressed: authProvider.isLoading ? null : _handleRegister,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.orange,
+                    backgroundColor: const Color(0xFFA03A57),
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(

@@ -107,27 +107,47 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Marketplace',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: Colors.orange,
-          ),
+        title: Row(
+          children: [
+            // Logo/Icon
+            Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                color: const Color(0xFFA03A57),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Icon(
+                Icons.storefront,
+                color: Colors.white,
+                size: 18,
+              ),
+            ),
+            const SizedBox(width: 8),
+            const Text(
+              'Marketplace',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 20,
+                color: Colors.black87,
+              ),
+            ),
+          ],
         ),
         backgroundColor: Colors.white,
         elevation: 0,
         actions: [
           IconButton(
-            icon: const Icon(Icons.search, color: Colors.grey),
+            icon: const Icon(Icons.search, color: Colors.black54),
             onPressed: () {},
           ),
           IconButton(
-            icon: const Icon(Icons.shopping_cart_outlined, color: Colors.grey),
+            icon: const Icon(Icons.shopping_cart_outlined, color: Colors.black54),
             onPressed: () {},
           ),
         ],
       ),
-      backgroundColor: Colors.grey[100],
+      backgroundColor: Colors.grey[50],
       body: Column(
         children: [
           // Category Chips
@@ -151,16 +171,21 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> {
                         _selectedCategory = category;
                       });
                     },
-                    selectedColor: Colors.orange,
+                    selectedColor: const Color(0xFFA03A57),
                     backgroundColor: Colors.grey[200],
                     labelStyle: TextStyle(
                       color: isSelected ? Colors.white : Colors.black87,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
                     ),
                   ),
                 );
               },
             ),
           ),
+          // Divider
+          const Divider(height: 1, color: Colors.grey),
           // Products Grid
           Expanded(
             child: GridView.builder(
@@ -179,13 +204,29 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // TODO: Navigate to add product
-        },
-        backgroundColor: Colors.orange,
-        foregroundColor: Colors.white,
-        child: const Icon(Icons.add),
+      floatingActionButton: Container(
+        width: 56,
+        height: 56,
+        decoration: BoxDecoration(
+          color: const Color(0xFFA03A57),
+          borderRadius: BorderRadius.circular(28),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFFA03A57).withOpacity(0.3),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: FloatingActionButton(
+          onPressed: () {
+            // TODO: Navigate to add product
+          },
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          foregroundColor: Colors.white,
+          child: const Icon(Icons.add, size: 28),
+        ),
       ),
     );
   }
@@ -217,7 +258,7 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> {
               child: Icon(
                 Icons.pets,
                 size: 40,
-                color: Colors.orange,
+                color: Color(0xFFA03A57),
               ),
             ),
           ),
@@ -230,7 +271,7 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> {
                 Text(
                   product.category,
                   style: const TextStyle(
-                    color: Colors.orange,
+                    color: Color(0xFFA03A57),
                     fontSize: 11,
                     fontWeight: FontWeight.w500,
                   ),
@@ -270,7 +311,7 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> {
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
-                    color: Colors.orange,
+                    color: Color(0xFFA03A57),
                   ),
                 ),
               ],

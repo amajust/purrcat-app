@@ -20,7 +20,6 @@ class FeedScreen extends StatefulWidget {
 }
 
 class _FeedScreenState extends State<FeedScreen> {
-  int _selectedIndex = 0;
   bool _isLiked = false;
 
   final List<String> _stories = [
@@ -213,30 +212,6 @@ class _FeedScreenState extends State<FeedScreen> {
         ],
       ),
 
-      // Bottom Navigation & FAB
-      bottomNavigationBar: Container(
-        height: 80,
-        decoration: BoxDecoration(
-          color: backgroundColor,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              blurRadius: 10,
-              offset: const Offset(0, -2),
-            ),
-          ],
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            _buildNavItem(Icons.dynamic_feed, 0, 'Feed'),
-            _buildNavItem(Icons.storefront, 1, 'Market'),
-            _buildNavItem(Icons.group_add, 2, 'Community'),
-            _buildNavItem(Icons.person_outline, 3, 'Profile'),
-          ],
-        ),
-      ),
-
       // FAB
       floatingActionButton: Container(
         margin: const EdgeInsets.only(bottom: 40),
@@ -250,45 +225,6 @@ class _FeedScreenState extends State<FeedScreen> {
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
-    );
-  }
-
-  Widget _buildNavItem(IconData icon, int index, String label) {
-    final isSelected = _selectedIndex == index;
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          _selectedIndex = index;
-        });
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-        decoration: isSelected
-            ? BoxDecoration(
-                color: brandPink.withOpacity(0.2),
-                borderRadius: BorderRadius.circular(20),
-              )
-            : null,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              icon,
-              color: isSelected ? brandPink : bodyColor,
-              size: 24,
-            ),
-            const SizedBox(height: 2),
-            Text(
-              label,
-              style: GoogleFonts.poppins(
-                fontSize: 10,
-                fontWeight: FontWeight.w500,
-                color: isSelected ? brandPink : bodyColor,
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

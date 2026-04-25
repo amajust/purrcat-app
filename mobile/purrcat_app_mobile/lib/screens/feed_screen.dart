@@ -90,40 +90,98 @@ class _FeedScreenState extends State<FeedScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'PurrCat Feed',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: Colors.orange,
-          ),
+        title: Row(
+          children: [
+            // Logo/Icon
+            Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                color: Colors.orange,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Icon(
+                Icons.pets,
+                color: Colors.white,
+                size: 18,
+              ),
+            ),
+            const SizedBox(width: 8),
+            const Text(
+              'PurrGram',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 20,
+                color: Colors.black87,
+              ),
+            ),
+          ],
         ),
         backgroundColor: Colors.white,
         elevation: 0,
         actions: [
           IconButton(
-            icon: const Icon(Icons.search, color: Colors.grey),
+            icon: const Icon(Icons.search, color: Colors.black54),
             onPressed: () {},
           ),
           IconButton(
-            icon: const Icon(Icons.notifications_none, color: Colors.grey),
+            icon: const Icon(Icons.notifications_none, color: Colors.black54),
             onPressed: () {},
           ),
         ],
       ),
-      backgroundColor: Colors.grey[100],
-      body: ListView.builder(
-        itemCount: _posts.length,
-        itemBuilder: (context, index) {
-          return _buildPostCard(_posts[index], index);
-        },
+      backgroundColor: Colors.grey[50],
+      body: Column(
+        children: [
+          // Pet Chip Row (Story section)
+          Container(
+            height: 90,
+            color: Colors.white,
+            padding: const EdgeInsets.symmetric(vertical: 12),
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: 8,
+              itemBuilder: (context, index) {
+                return _buildPetChip(index);
+              },
+            ),
+          ),
+          // Divider
+          const Divider(height: 1, color: Colors.grey),
+          // Feed List
+          Expanded(
+            child: ListView.builder(
+              itemCount: _posts.length,
+              itemBuilder: (context, index) {
+                return _buildPostCard(_posts[index], index);
+              },
+            ),
+          ),
+        ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // TODO: Navigate to create post
-        },
-        backgroundColor: Colors.orange,
-        foregroundColor: Colors.white,
-        child: const Icon(Icons.add),
+      floatingActionButton: Container(
+        width: 56,
+        height: 56,
+        decoration: BoxDecoration(
+          color: Colors.orange,
+          borderRadius: BorderRadius.circular(28),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.orange.withOpacity(0.3),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: FloatingActionButton(
+          onPressed: () {
+            // TODO: Navigate to create post
+          },
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          foregroundColor: Colors.white,
+          child: const Icon(Icons.add, size: 28),
+        ),
       ),
     );
   }
@@ -212,6 +270,59 @@ class _FeedScreenState extends State<FeedScreen> {
                 onPressed: () {},
               ),
             ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPetChip(int index) {
+    final petNames = ['Semua', 'Lucy', 'Max', 'Bella', 'Charlie', 'Luna', 'Oscar', 'Milo'];
+    final colors = [
+      Colors.orange,
+      Colors.blue,
+      Colors.green,
+      Colors.purple,
+      Colors.pink,
+      Colors.teal,
+      Colors.amber,
+      Colors.red,
+    ];
+    final isSelected = index == 0;
+
+    return Padding(
+      padding: const EdgeInsets.only(left: 12),
+      child: Column(
+        children: [
+          Container(
+            width: 56,
+            height: 56,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: isSelected ? Colors.orange : Colors.grey[300]!,
+                width: 2,
+              ),
+            ),
+            child: CircleAvatar(
+              backgroundColor: colors[index],
+              child: Text(
+                petNames[index][0],
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            petNames[index],
+            style: TextStyle(
+              fontSize: 11,
+              color: isSelected ? Colors.orange : Colors.grey,
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+            ),
           ),
         ],
       ),

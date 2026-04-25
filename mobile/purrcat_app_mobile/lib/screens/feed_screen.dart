@@ -6,8 +6,8 @@ import 'package:cached_network_image/cached_network_image.dart';
 
 import '../models/feed_model.dart';
 
-// Global Theme Colors
-const Color brandPink = Color(0xFFF28C94);
+// Global Theme Colors (corrected to match Figma design)
+const Color brandPink = Color(0xFFA03A57);
 const Color headingColor = Color(0xFF1A1A1A);
 const Color bodyColor = Color(0xFF757575);
 const Color backgroundColor = Colors.white;

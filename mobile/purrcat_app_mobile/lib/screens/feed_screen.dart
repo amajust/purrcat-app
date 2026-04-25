@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 import '../models/feed_model.dart';
+import '../components/post_card.dart';
+import '../components/pet_chip.dart';
+import '../components/feed_header.dart';
 
 class FeedScreen extends StatefulWidget {
   const FeedScreen({super.key});
@@ -54,71 +56,47 @@ class _FeedScreenState extends State<FeedScreen> {
     ),
   ];
 
+  int _selectedPetIndex = 0;
+
+  final List<PetStory> _petStories = [
+    PetStory(name: 'Semua', color: const Color(0xFFA03A57)),
+    PetStory(name: 'Lucy', color: Colors.blue),
+    PetStory(name: 'Max', color: Colors.green),
+    PetStory(name: 'Bella', color: Colors.purple),
+    PetStory(name: 'Charlie', color: Colors.pink),
+    PetStory(name: 'Luna', color: Colors.teal),
+    PetStory(name: 'Oscar', color: Colors.amber),
+    PetStory(name: 'Milo', color: Colors.red),
+  ];
+
   void _toggleLike(int index) {
     setState(() {
       final post = _posts[index];
-      _posts[index] = Post(
-        id: post.id,
-        userId: post.userId,
-        userName: post.userName,
-        userAvatar: post.userAvatar,
-        content: post.content,
-        images: post.images,
+      _posts[index] = post.copyWith(
         likes: post.isLiked ? post.likes - 1 : post.likes + 1,
-        comments: post.comments,
-        shares: post.shares,
-        createdAt: post.createdAt,
         isLiked: !post.isLiked,
       );
     });
   }
 
-  String _formatTime(DateTime time) {
-    final now = DateTime.now();
-    final difference = now.difference(time);
-
-    if (difference.inMinutes < 60) {
-      return '${difference.inMinutes}m ago';
-    } else if (difference.inHours < 24) {
-      return '${difference.inHours}h ago';
-    } else {
-      return DateFormat('MMM d').format(time);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Row(
-          children: [
-            // Logo/Icon
-            Container(
-              width: 32,
-              height: 32,
-              decoration: BoxDecoration(
-                color: const Color(0xFFA03A57),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: const Icon(
-                Icons.pets,
-                color: Colors.white,
-                size: 18,
-              ),
-            ),
-            const SizedBox(width: 8),
-            const Text(
-              'PurrGram',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 20,
-                color: Colors.black87,
-              ),
-            ),
-          ],
+      appBar: FeedHeader(
+        title: 'PurrGram',
+        leading: Container(
+          width: 32,
+          height: 32,
+          decoration: BoxDecoration(
+            color: const Color(0xFFA03A57),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: const Icon(
+            Icons.pets,
+            color: Colors.white,
+            size: 18,
+          ),
         ),
-        backgroundColor: Colors.white,
-        elevation: 0,
         actions: [
           IconButton(
             icon: const Icon(Icons.search, color: Colors.black54),
@@ -140,9 +118,18 @@ class _FeedScreenState extends State<FeedScreen> {
             padding: const EdgeInsets.symmetric(vertical: 12),
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
-              itemCount: 8,
+              itemCount: _petStories.length,
               itemBuilder: (context, index) {
-                return _buildPetChip(index);
+                return PetChip(
+                  name: _petStories[index].name,
+                  color: _petStories[index].color,
+                  isSelected: index == _selectedPetIndex,
+                  onTap: () {
+                    setState(() {
+                      _selectedPetIndex = index;
+                    });
+                  },
+                );
               },
             ),
           ),
@@ -153,7 +140,14 @@ class _FeedScreenState extends State<FeedScreen> {
             child: ListView.builder(
               itemCount: _posts.length,
               itemBuilder: (context, index) {
-                return _buildPostCard(_posts[index], index);
+                return PostCard(
+                  post: _posts[index],
+                  index: index,
+                  onLike: () => _toggleLike(index),
+                  onComment: () {},
+                  onShare: () {},
+                  onSave: () {},
+                );
               },
             ),
           ),
@@ -182,170 +176,6 @@ class _FeedScreenState extends State<FeedScreen> {
           foregroundColor: Colors.white,
           child: const Icon(Icons.add, size: 28),
         ),
-      ),
-    );
-  }
-
-  Widget _buildPostCard(Post post, int index) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.all(12),
-      color: Colors.white,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Header
-          Row(
-            children: [
-              CircleAvatar(
-                radius: 20,
-                backgroundColor: const Color(0xFFA03A57),
-                child: Text(
-                  post.userName.isNotEmpty ? post.userName[0].toUpperCase() : 'U',
-                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      post.userName,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
-                    ),
-                    Text(
-                      _formatTime(post.createdAt),
-                      style: const TextStyle(
-                        color: Colors.grey,
-                        fontSize: 12,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const Icon(Icons.more_vert, color: Colors.grey),
-            ],
-          ),
-          const SizedBox(height: 12),
-          // Content
-          Text(
-            post.content,
-            style: const TextStyle(fontSize: 15),
-          ),
-          const SizedBox(height: 12),
-          // Actions
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  _buildActionButton(
-                    icon: post.isLiked ? Icons.favorite : Icons.favorite_border,
-                    color: post.isLiked ? Colors.red : Colors.grey,
-                    count: post.likes,
-                    onTap: () => _toggleLike(index),
-                  ),
-                  const SizedBox(width: 16),
-                  _buildActionButton(
-                    icon: Icons.chat_bubble_outline,
-                    color: Colors.grey,
-                    count: post.comments,
-                    onTap: () {},
-                  ),
-                  const SizedBox(width: 16),
-                  _buildActionButton(
-                    icon: Icons.share,
-                    color: Colors.grey,
-                    count: post.shares,
-                    onTap: () {},
-                  ),
-                ],
-              ),
-              IconButton(
-                icon: const Icon(Icons.bookmark_border, color: Colors.grey),
-                onPressed: () {},
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildPetChip(int index) {
-    final petNames = ['Semua', 'Lucy', 'Max', 'Bella', 'Charlie', 'Luna', 'Oscar', 'Milo'];
-    final colors = [
-      const Color(0xFFA03A57),
-      Colors.blue,
-      Colors.green,
-      Colors.purple,
-      Colors.pink,
-      Colors.teal,
-      Colors.amber,
-      Colors.red,
-    ];
-    final isSelected = index == 0;
-
-    return Padding(
-      padding: const EdgeInsets.only(left: 12),
-      child: Column(
-        children: [
-          Container(
-            width: 56,
-            height: 56,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: isSelected ? const Color(0xFFA03A57) : Colors.grey[300]!,
-                width: 2,
-              ),
-            ),
-            child: CircleAvatar(
-              backgroundColor: colors[index],
-              child: Text(
-                petNames[index][0],
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            petNames[index],
-            style: TextStyle(
-              fontSize: 11,
-              color: isSelected ? const Color(0xFFA03A57) : Colors.grey,
-              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildActionButton({
-    required IconData icon,
-    required Color color,
-    required int count,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Row(
-        children: [
-          Icon(icon, color: color, size: 22),
-          const SizedBox(width: 4),
-          Text(
-            count.toString(),
-            style: TextStyle(color: color, fontSize: 13),
-          ),
-        ],
       ),
     );
   }

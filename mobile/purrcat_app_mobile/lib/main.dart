@@ -24,7 +24,7 @@ class PurrCatApp extends StatelessWidget {
       child: MaterialApp.router(
         title: 'PurrCat App',
         theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.orange),
+          colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFFA03A57)),
           useMaterial3: true,
         ),
         routerConfig: router,

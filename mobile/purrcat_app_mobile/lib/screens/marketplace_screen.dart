@@ -114,7 +114,7 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> {
               width: 32,
               height: 32,
               decoration: BoxDecoration(
-                color: Colors.orange,
+                color: const Color(0xFFA03A57),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: const Icon(
@@ -171,7 +171,7 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> {
                         _selectedCategory = category;
                       });
                     },
-                    selectedColor: Colors.orange,
+                    selectedColor: const Color(0xFFA03A57),
                     backgroundColor: Colors.grey[200],
                     labelStyle: TextStyle(
                       color: isSelected ? Colors.white : Colors.black87,
@@ -208,11 +208,11 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> {
         width: 56,
         height: 56,
         decoration: BoxDecoration(
-          color: Colors.orange,
+          color: const Color(0xFFA03A57),
           borderRadius: BorderRadius.circular(28),
           boxShadow: [
             BoxShadow(
-              color: Colors.orange.withOpacity(0.3),
+              color: const Color(0xFFA03A57).withOpacity(0.3),
               blurRadius: 8,
               offset: const Offset(0, 4),
             ),
@@ -258,7 +258,7 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> {
               child: Icon(
                 Icons.pets,
                 size: 40,
-                color: Colors.orange,
+                color: Color(0xFFA03A57),
               ),
             ),
           ),
@@ -271,7 +271,7 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> {
                 Text(
                   product.category,
                   style: const TextStyle(
-                    color: Colors.orange,
+                    color: Color(0xFFA03A57),
                     fontSize: 11,
                     fontWeight: FontWeight.w500,
                   ),
@@ -311,7 +311,7 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> {
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
-                    color: Colors.orange,
+                    color: Color(0xFFA03A57),
                   ),
                 ),
               ],

@@ -97,7 +97,7 @@ class _FeedScreenState extends State<FeedScreen> {
               width: 32,
               height: 32,
               decoration: BoxDecoration(
-                color: Colors.orange,
+                color: const Color(0xFFA03A57),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: const Icon(
@@ -163,11 +163,11 @@ class _FeedScreenState extends State<FeedScreen> {
         width: 56,
         height: 56,
         decoration: BoxDecoration(
-          color: Colors.orange,
+          color: const Color(0xFFA03A57),
           borderRadius: BorderRadius.circular(28),
           boxShadow: [
             BoxShadow(
-              color: Colors.orange.withOpacity(0.3),
+              color: const Color(0xFFA03A57).withOpacity(0.3),
               blurRadius: 8,
               offset: const Offset(0, 4),
             ),
@@ -199,7 +199,7 @@ class _FeedScreenState extends State<FeedScreen> {
             children: [
               CircleAvatar(
                 radius: 20,
-                backgroundColor: Colors.orange,
+                backgroundColor: const Color(0xFFA03A57),
                 child: Text(
                   post.userName.isNotEmpty ? post.userName[0].toUpperCase() : 'U',
                   style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
@@ -279,7 +279,7 @@ class _FeedScreenState extends State<FeedScreen> {
   Widget _buildPetChip(int index) {
     final petNames = ['Semua', 'Lucy', 'Max', 'Bella', 'Charlie', 'Luna', 'Oscar', 'Milo'];
     final colors = [
-      Colors.orange,
+      const Color(0xFFA03A57),
       Colors.blue,
       Colors.green,
       Colors.purple,
@@ -300,7 +300,7 @@ class _FeedScreenState extends State<FeedScreen> {
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.all(
-                color: isSelected ? Colors.orange : Colors.grey[300]!,
+                color: isSelected ? const Color(0xFFA03A57) : Colors.grey[300]!,
                 width: 2,
               ),
             ),
@@ -320,7 +320,7 @@ class _FeedScreenState extends State<FeedScreen> {
             petNames[index],
             style: TextStyle(
               fontSize: 11,
-              color: isSelected ? Colors.orange : Colors.grey,
+              color: isSelected ? const Color(0xFFA03A57) : Colors.grey,
               fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
             ),
           ),

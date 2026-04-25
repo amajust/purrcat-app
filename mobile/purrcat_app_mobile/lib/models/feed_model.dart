@@ -8,10 +8,10 @@ class Post {
   final String content;
   final List<String> images;
   final DateTime createdAt;
-  final int likes;
+  int likes;
   final int comments;
   final int shares;
-  final bool isLiked;
+  bool isLiked;
 
   Post({
     required this.id,

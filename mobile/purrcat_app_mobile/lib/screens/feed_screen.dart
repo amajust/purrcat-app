@@ -229,8 +229,10 @@ class _FeedScreenState extends State<FeedScreen> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            _buildNavItem(Icons.group_add, 0, 'Community'),
-            _buildNavItem(Icons.person_outline, 1, 'Profile'),
+            _buildNavItem(Icons.dynamic_feed, 0, 'Feed'),
+            _buildNavItem(Icons.storefront, 1, 'Market'),
+            _buildNavItem(Icons.group_add, 2, 'Community'),
+            _buildNavItem(Icons.person_outline, 3, 'Profile'),
           ],
         ),
       ),

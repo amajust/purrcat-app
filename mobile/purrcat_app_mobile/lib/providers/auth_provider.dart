@@ -1,10 +1,14 @@
 import 'package:flutter/foundation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
+import 'package:google_sign_in/google_sign_in.dart';
 
 // Models
 import '../models/user_model.dart';
 
 class AuthProvider with ChangeNotifier {
+  final firebase_auth.FirebaseAuth _firebaseAuth = firebase_auth.FirebaseAuth.instance;
+  final GoogleSignIn _googleSignIn = GoogleSignIn();
+
   User? _currentUser;
   bool _isLoading = false;
   String? _error;
@@ -13,30 +17,43 @@ class AuthProvider with ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get error => _error;
   bool get isAuthenticated => _currentUser != null;
+  firebase_auth.FirebaseAuth get firebaseAuth => _firebaseAuth;
 
-  // Check if user is already logged in on app start
+  AuthProvider() {
+    // Listen to Firebase Auth state changes
+    _firebaseAuth.authStateChanges().listen(_onAuthStateChanged);
+  }
+
+  void _onAuthStateChanged(firebase_auth.User? fbUser) {
+    if (fbUser != null) {
+      _currentUser = User(
+        id: fbUser.uid,
+        email: fbUser.email ?? '',
+        name: fbUser.displayName ?? 'User',
+        avatarUrl: fbUser.photoURL,
+        phone: fbUser.phoneNumber,
+      );
+    } else {
+      _currentUser = null;
+    }
+    notifyListeners();
+  }
+
+  /// Check if user is already logged in on app start
   Future<void> checkAuthStatus() async {
     _isLoading = true;
     notifyListeners();
 
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString('auth_token');
-      
-      if (token != null) {
-        // TODO: Validate token with backend
-        // For now, we'll just keep the user logged in
-        final userId = prefs.getString('user_id');
-        final userEmail = prefs.getString('user_email');
-        final userName = prefs.getString('user_name');
-        
-        if (userId != null && userEmail != null) {
-          _currentUser = User(
-            id: userId,
-            email: userEmail,
-            name: userName ?? '',
-          );
-        }
+      final fbUser = _firebaseAuth.currentUser;
+      if (fbUser != null) {
+        _currentUser = User(
+          id: fbUser.uid,
+          email: fbUser.email ?? '',
+          name: fbUser.displayName ?? 'User',
+          avatarUrl: fbUser.photoURL,
+          phone: fbUser.phoneNumber,
+        );
       }
     } catch (e) {
       _error = e.toString();
@@ -46,33 +63,37 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
-  // Login with email and password
+  /// Login with email and password via Firebase
   Future<bool> login(String email, String password) async {
     _isLoading = true;
     _error = null;
     notifyListeners();
 
     try {
-      // TODO: Call backend API for login
-      // Simulating login for now
-      await Future.delayed(const Duration(seconds: 1));
-
-      // Mock successful login
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('auth_token', 'mock_token_${DateTime.now().millisecondsSinceEpoch}');
-      await prefs.setString('user_id', 'user_123');
-      await prefs.setString('user_email', email);
-      await prefs.setString('user_name', 'User');
-
-      _currentUser = User(
-        id: 'user_123',
+      final userCredential = await _firebaseAuth.signInWithEmailAndPassword(
         email: email,
-        name: 'User',
+        password: password,
       );
+
+      final fbUser = userCredential.user;
+      if (fbUser != null) {
+        _currentUser = User(
+          id: fbUser.uid,
+          email: fbUser.email ?? '',
+          name: fbUser.displayName ?? 'User',
+          avatarUrl: fbUser.photoURL,
+          phone: fbUser.phoneNumber,
+        );
+      }
 
       _isLoading = false;
       notifyListeners();
       return true;
+    } on firebase_auth.FirebaseAuthException catch (e) {
+      _error = _getFirebaseErrorMessage(e.code);
+      _isLoading = false;
+      notifyListeners();
+      return false;
     } catch (e) {
       _error = e.toString();
       _isLoading = false;
@@ -81,7 +102,63 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
-  // Register new user
+  /// Sign in with Google
+  Future<bool> signInWithGoogle() async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      // Trigger Google Sign-In flow
+      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+      if (googleUser == null) {
+        // User cancelled the sign-in
+        _isLoading = false;
+        notifyListeners();
+        return false;
+      }
+
+      // Get Google authentication credentials
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
+
+      // Create Firebase credential
+      final credential = firebase_auth.GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      // Sign in to Firebase with Google credentials
+      final userCredential =
+          await _firebaseAuth.signInWithCredential(credential);
+
+      final fbUser = userCredential.user;
+      if (fbUser != null) {
+        _currentUser = User(
+          id: fbUser.uid,
+          email: fbUser.email ?? '',
+          name: fbUser.displayName ?? googleUser.displayName ?? 'User',
+          avatarUrl: fbUser.photoURL ?? googleUser.photoUrl,
+        );
+      }
+
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } on firebase_auth.FirebaseAuthException catch (e) {
+      _error = _getFirebaseErrorMessage(e.code);
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    } catch (e) {
+      _error = e.toString();
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  /// Register new user with email/password
   Future<bool> register({
     required String email,
     required String password,
@@ -93,26 +170,35 @@ class AuthProvider with ChangeNotifier {
     notifyListeners();
 
     try {
-      // TODO: Call backend API for registration
-      // Simulating registration for now
-      await Future.delayed(const Duration(seconds: 1));
-
-      // Mock successful registration
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('auth_token', 'mock_token_${DateTime.now().millisecondsSinceEpoch}');
-      await prefs.setString('user_id', 'user_${DateTime.now().millisecondsSinceEpoch}');
-      await prefs.setString('user_email', email);
-      await prefs.setString('user_name', name);
-
-      _currentUser = User(
-        id: 'user_${DateTime.now().millisecondsSinceEpoch}',
+      final userCredential =
+          await _firebaseAuth.createUserWithEmailAndPassword(
         email: email,
-        name: name,
+        password: password,
       );
+
+      // Update display name
+      await userCredential.user?.updateDisplayName(name);
+      await userCredential.user?.reload();
+
+      final fbUser = _firebaseAuth.currentUser;
+      if (fbUser != null) {
+        _currentUser = User(
+          id: fbUser.uid,
+          email: fbUser.email ?? '',
+          name: name,
+          phone: phone,
+          avatarUrl: fbUser.photoURL,
+        );
+      }
 
       _isLoading = false;
       notifyListeners();
       return true;
+    } on firebase_auth.FirebaseAuthException catch (e) {
+      _error = _getFirebaseErrorMessage(e.code);
+      _isLoading = false;
+      notifyListeners();
+      return false;
     } catch (e) {
       _error = e.toString();
       _isLoading = false;
@@ -121,18 +207,38 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
-  // Logout
+  /// Send password reset email
+  Future<bool> resetPassword(String email) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      await _firebaseAuth.sendPasswordResetEmail(email: email);
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } on firebase_auth.FirebaseAuthException catch (e) {
+      _error = _getFirebaseErrorMessage(e.code);
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    } catch (e) {
+      _error = e.toString();
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  /// Logout from Firebase
   Future<void> logout() async {
     _isLoading = true;
     notifyListeners();
 
     try {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.remove('auth_token');
-      await prefs.remove('user_id');
-      await prefs.remove('user_email');
-      await prefs.remove('user_name');
-
+      await _googleSignIn.signOut();
+      await _firebaseAuth.signOut();
       _currentUser = null;
     } catch (e) {
       _error = e.toString();
@@ -142,9 +248,39 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
-  // Clear error
+  /// Clear error
   void clearError() {
     _error = null;
     notifyListeners();
+  }
+
+  /// Map Firebase Auth error codes to user-friendly messages in Indonesian
+  String _getFirebaseErrorMessage(String code) {
+    switch (code) {
+      case 'user-not-found':
+        return 'Email tidak ditemukan';
+      case 'wrong-password':
+        return 'Password salah';
+      case 'invalid-credential':
+        return 'Email atau password salah';
+      case 'invalid-email':
+        return 'Format email tidak valid';
+      case 'user-disabled':
+        return 'Akun ini telah dinonaktifkan';
+      case 'email-already-in-use':
+        return 'Email sudah terdaftar';
+      case 'weak-password':
+        return 'Password minimal 6 karakter';
+      case 'operation-not-allowed':
+        return 'Login metode ini belum diaktifkan';
+      case 'account-exists-with-different-credential':
+        return 'Email sudah terdaftar dengan metode login lain';
+      case 'network-request-failed':
+        return 'Koneksi internet bermasalah';
+      case 'too-many-requests':
+        return 'Terlalu banyak percobaan, coba lagi nanti';
+      default:
+        return 'Terjadi kesalahan: $code';
+    }
   }
 }

@@ -1,5 +1,4 @@
 import 'package:go_router/go_router.dart';
-import 'package:flutter/material.dart';
 
 // Screens
 import '../screens/splash_screen.dart';
@@ -8,6 +7,7 @@ import '../screens/register_screen.dart';
 import '../screens/home_screen.dart';
 import '../screens/feed_screen.dart';
 import '../screens/marketplace_screen.dart';
+import '../screens/profile_screen.dart';
 
 final GoRouter router = GoRouter(
   initialLocation: '/splash',
@@ -35,6 +35,10 @@ final GoRouter router = GoRouter(
     GoRoute(
       path: '/marketplace',
       builder: (context, state) => const MarketplaceScreen(),
+    ),
+    GoRoute(
+      path: '/profile',
+      builder: (context, state) => const ProfileScreen(),
     ),
   ],
 );

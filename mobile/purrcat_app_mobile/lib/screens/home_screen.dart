@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'feed_screen.dart';
-import 'marketplace_screen.dart';
+import 'profile_screen.dart';
 import '../components/bottom_nav_component.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -16,9 +16,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   final List<Widget> _screens = [
     const FeedScreen(),
-    const MarketplaceScreen(),
-    const Center(child: Text('Services Screen')),
-    const Center(child: Text('Profile Screen')),
+    const ProfileScreen(),
   ];
 
   @override

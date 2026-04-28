@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "301187099666",
+    "project_id": "purrperfect-c6028",
+    "storage_bucket": "purrperfect-c6028.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:301187099666:android:6708b6a77e2f9817a87ccb",
+        "android_client_info": {
+          "package_name": "com.znitech.purrpefect"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "301187099666-q2d3ctc2mlg41f8qb8n70a0erll3cdau.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAtcX545N5qmZWbjNTt-lPk0ROgn3ibkLY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "301187099666-q2d3ctc2mlg41f8qb8n70a0erll3cdau.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

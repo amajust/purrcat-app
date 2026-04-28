@@ -23,7 +23,7 @@ class BottomNavComponent extends StatelessWidget {
         color: backgroundColor,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 10,
             offset: const Offset(0, -2),
           ),
@@ -41,7 +41,7 @@ class BottomNavComponent extends StatelessWidget {
             icon: Container(
               padding: const EdgeInsets.all(4),
               decoration: BoxDecoration(
-                color: currentIndex == 0 ? brandPink.withOpacity(0.1) : Colors.transparent,
+                color: currentIndex == 0 ? brandPink.withValues(alpha: 0.1) : Colors.transparent,
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(
@@ -49,45 +49,17 @@ class BottomNavComponent extends StatelessWidget {
                 size: 24,
               ),
             ),
-            label: 'Feed',
+            label: 'Community',
           ),
           BottomNavigationBarItem(
             icon: Container(
               padding: const EdgeInsets.all(4),
               decoration: BoxDecoration(
-                color: currentIndex == 1 ? brandPink.withOpacity(0.1) : Colors.transparent,
+                color: currentIndex == 1 ? brandPink.withValues(alpha: 0.1) : Colors.transparent,
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(
-                currentIndex == 1 ? Icons.storefront : Icons.storefront_outlined,
-                size: 24,
-              ),
-            ),
-            label: 'Market',
-          ),
-          BottomNavigationBarItem(
-            icon: Container(
-              padding: const EdgeInsets.all(4),
-              decoration: BoxDecoration(
-                color: currentIndex == 2 ? brandPink.withOpacity(0.1) : Colors.transparent,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Icon(
-                currentIndex == 2 ? Icons.miscellaneous_services : Icons.miscellaneous_services_outlined,
-                size: 24,
-              ),
-            ),
-            label: 'Services',
-          ),
-          BottomNavigationBarItem(
-            icon: Container(
-              padding: const EdgeInsets.all(4),
-              decoration: BoxDecoration(
-                color: currentIndex == 3 ? brandPink.withOpacity(0.1) : Colors.transparent,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Icon(
-                currentIndex == 3 ? Icons.person : Icons.person_outline,
+                currentIndex == 1 ? Icons.person : Icons.person_outline,
                 size: 24,
               ),
             ),

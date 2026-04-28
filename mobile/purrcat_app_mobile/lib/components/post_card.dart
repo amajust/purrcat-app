@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
 import '../models/feed_model.dart';
+import '../providers/auth_provider.dart';
+import 'login_popup.dart';
 
 class PostCard extends StatelessWidget {
   final Post post;
@@ -29,6 +33,18 @@ class PostCard extends StatelessWidget {
       return '${difference.inHours}h ago';
     } else {
       return '${difference.inDays}d ago';
+    }
+  }
+
+  Future<void> _requireAuth(BuildContext context, VoidCallback action) async {
+    final auth = Provider.of<AuthProvider>(context, listen: false);
+    if (auth.isAuthenticated) {
+      action();
+    } else {
+      final loggedIn = await LoginPopup.show(context);
+      if (loggedIn) {
+        action();
+      }
     }
   }
 
@@ -97,14 +113,14 @@ class PostCard extends StatelessWidget {
                     icon: post.isLiked ? Icons.favorite : Icons.favorite_border,
                     color: post.isLiked ? Colors.red : Colors.grey,
                     count: post.likes,
-                    onTap: onLike,
+                    onTap: () => _requireAuth(context, onLike),
                   ),
                   const SizedBox(width: 16),
                   _buildActionButton(
                     icon: Icons.chat_bubble_outline,
                     color: Colors.grey,
                     count: post.comments,
-                    onTap: onComment,
+                    onTap: () => _requireAuth(context, onComment),
                   ),
                   const SizedBox(width: 16),
                   _buildActionButton(

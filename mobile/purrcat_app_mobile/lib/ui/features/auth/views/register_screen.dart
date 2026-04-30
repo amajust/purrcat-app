@@ -68,6 +68,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     return Scaffold(
       backgroundColor: Colors.grey[50],
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.black87),
+          onPressed: () => Navigator.pop(context),
+        ),
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
@@ -243,7 +251,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     const Text("Already have an account?"),
                     TextButton(
                       onPressed: () {
-                        context.go('/login');
+                        context.push('/login');
                       },
                       child: const Text('Sign In'),
                     ),

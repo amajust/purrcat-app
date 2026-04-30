@@ -1,4 +1,4 @@
-package com.purrcat.purrcat_app_mobile
+package com.znitech.purrpefect
 
 import io.flutter.embedding.android.FlutterActivity
 

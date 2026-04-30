@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import 'feed_screen.dart';
-import 'marketplace_screen.dart';
-import '../components/bottom_nav_component.dart';
+import '../../feed/views/feed_screen.dart';
+import '../../marketplace/views/marketplace_screen.dart';
+import '../../../../ui/shared/bottom_nav_component.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});

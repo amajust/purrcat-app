@@ -52,14 +52,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
     return Scaffold(
       backgroundColor: Colors.grey[50],
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black87),
-          onPressed: () => Navigator.pop(context),
-        ),
-      ),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
@@ -200,7 +192,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     const Text("Don't have an account?"),
                     TextButton(
                       onPressed: () {
-                        context.push('/register');
+                        context.go('/register');
                       },
                       child: const Text('Sign Up'),
                     ),

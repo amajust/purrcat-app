@@ -1,14 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:firebase_core/firebase_core.dart';
 
 import 'utils/routes.dart';
 import 'ui/features/auth/view_models/auth_provider.dart';
 import 'ui/core/theme.dart';
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+void main() {
   runApp(const PurrCatApp());
 }
 

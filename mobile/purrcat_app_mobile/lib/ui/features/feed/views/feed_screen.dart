@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../data/models/feed_model.dart';
 import '../../../../ui/core/theme.dart';
@@ -211,7 +212,7 @@ class _FeedScreenState extends State<FeedScreen> {
       floatingActionButton: Container(
         margin: const EdgeInsets.only(bottom: 40),
         child: FloatingActionButton(
-          onPressed: () {},
+          onPressed: () => context.push('/feed/create'),
           backgroundColor: brandPink,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),

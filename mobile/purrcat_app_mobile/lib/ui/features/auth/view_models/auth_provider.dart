@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 // Models
-import '../models/user_model.dart';
+import '../../../../data/models/user_model.dart';
 
 class AuthProvider with ChangeNotifier {
   User? _currentUser;

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../models/feed_model.dart';
+import '../../../../data/models/feed_model.dart';
 
 class MarketplaceScreen extends StatefulWidget {
   const MarketplaceScreen({super.key});

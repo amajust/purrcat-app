@@ -1,13 +1,12 @@
 import 'package:go_router/go_router.dart';
-import 'package:flutter/material.dart';
 
 // Screens
-import '../screens/splash_screen.dart';
-import '../screens/login_screen.dart';
-import '../screens/register_screen.dart';
-import '../screens/home_screen.dart';
-import '../screens/feed_screen.dart';
-import '../screens/marketplace_screen.dart';
+import '../ui/features/auth/views/splash_screen.dart';
+import '../ui/features/auth/views/login_screen.dart';
+import '../ui/features/auth/views/register_screen.dart';
+import '../ui/features/home/views/home_screen.dart';
+import '../ui/features/feed/views/feed_screen.dart';
+import '../ui/features/marketplace/views/marketplace_screen.dart';
 
 final GoRouter router = GoRouter(
   initialLocation: '/splash',

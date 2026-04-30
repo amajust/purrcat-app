@@ -104,7 +104,7 @@ class _FeedScreenState extends State<FeedScreen> {
               height: 100,
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                 itemCount: _stories.length + 1,
                 itemBuilder: (context, index) {
                   if (index == 0) {

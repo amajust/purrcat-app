@@ -3,12 +3,14 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:go_router/go_router.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'dart:async';
 
 import '../../../../data/models/feed_model.dart';
+import '../../../../data/services/firestore_service.dart';
 import '../../../../ui/core/theme.dart';
 import '../../../../ui/shared/post_card.dart';
-
-
+import '../../../../ui/shared/login_modal.dart';
 
 class FeedScreen extends StatefulWidget {
   const FeedScreen({super.key});
@@ -26,116 +28,168 @@ class _FeedScreenState extends State<FeedScreen> {
     'https://i.pravatar.cc/150?img=5',
   ];
 
-  final List<Post> _posts = [
-    Post(
-      id: '1',
-      userId: '1',
-      userName: 'Dr. Sarah Whiskers',
-      userAvatar: 'https://i.pravatar.cc/150?img=1',
-      content: 'Beautiful day at the park! My cat Luna loves the sunshine 🌞',
-      images: ['https://picsum.photos/400/500?random=1'],
-      createdAt: DateTime.now().subtract(const Duration(hours: 2)),
-      likes: 1284,
-      comments: 45,
-      shares: 12,
-      isLiked: false,
-    ),
-    Post(
-      id: '2',
-      userId: '2',
-      userName: 'Tommy Paws',
-      userAvatar: 'https://i.pravatar.cc/150?img=2',
-      content: 'Just adopted this cute kitten! Meet Milo 🐱 #kitten #adoptdontshop',
-      images: ['https://picsum.photos/400/500?random=2'],
-      createdAt: DateTime.now().subtract(const Duration(hours: 5)),
-      likes: 2341,
-      comments: 89,
-      shares: 23,
-      isLiked: false,
-    ),
-    Post(
-      id: '3',
-      userId: '3',
-      userName: 'Whiskers & Co',
-      userAvatar: 'https://i.pravatar.cc/150?img=3',
-      content: 'Cat grooming tips for summer! Keep your feline friend cool and comfortable 💕',
-      images: ['https://picsum.photos/400/500?random=3'],
-      createdAt: DateTime.now().subtract(const Duration(days: 1)),
-      likes: 892,
-      comments: 34,
-      shares: 8,
-      isLiked: false,
-    ),
-  ];
+  StreamSubscription<List<Post>>? _postsSub;
+  List<Post> _posts = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _postsSub = FirestoreService().getPosts().listen((posts) {
+      if (mounted) {
+        setState(() => _posts = posts);
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _postsSub?.cancel();
+    super.dispose();
+  }
+
+  Future<void> _onRefresh() async {
+    // Pull-to-refresh: re-subscribing isn't needed since the stream
+    // is already live.  We could force a Firestore cache refresh here,
+    // but the simplest reactive solution is to wait a moment so the
+    // RefreshIndicator spinner shows, then let the stream emit.
+    final completer = Completer<void>();
+    // Request a fresh read — the stream will re-emit with latest data.
+    FirestoreService().getPosts().first.then((posts) {
+      if (mounted) {
+        setState(() => _posts = posts);
+      }
+      completer.complete();
+    });
+    return completer.future;
+  }
+
+  void _onFabPressed() {
+    if (FirebaseAuth.instance.currentUser == null) {
+      showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        builder: (_) => LoginModal(
+          onLoginSuccess: () => context.push('/feed/create'),
+        ),
+      );
+    } else {
+      context.push('/feed/create');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: backgroundColor,
-      body: CustomScrollView(
-        slivers: [
-          // Top App Bar
-          SliverAppBar(
-            backgroundColor: backgroundColor,
-            elevation: 0,
-            title: Text(
-              'PurrCat',
-              style: GoogleFonts.poppins(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: brandPink,
+      body: RefreshIndicator(
+        onRefresh: _onRefresh,
+        color: brandPink,
+        child: CustomScrollView(
+          slivers: [
+            // Top App Bar
+            SliverAppBar(
+              backgroundColor: backgroundColor,
+              elevation: 0,
+              title: Text(
+                'PurrCat',
+                style: GoogleFonts.poppins(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: brandPink,
+                ),
               ),
+              actions: [
+                IconButton(
+                  icon: const Icon(Icons.search_rounded, color: headingColor),
+                  onPressed: () {},
+                ),
+                IconButton(
+                  icon: const Icon(
+                    Icons.notifications_none_rounded,
+                    color: headingColor,
+                  ),
+                  onPressed: () {},
+                ),
+              ],
+              pinned: true,
             ),
-            actions: [
-              IconButton(
-                icon: const Icon(Icons.search_rounded, color: headingColor),
-                onPressed: () {},
-              ),
-              IconButton(
-                icon: const Icon(Icons.notifications_none_rounded, color: headingColor),
-                onPressed: () {},
-              ),
-            ],
-            pinned: true,
-          ),
 
-          // Stories Section
-          SliverToBoxAdapter(
-            child: SizedBox(
-              height: 100,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                itemCount: _stories.length + 1,
-                itemBuilder: (context, index) {
-                  if (index == 0) {
-                    // Add Story Button
+            // Stories Section
+            SliverToBoxAdapter(
+              child: SizedBox(
+                height: 100,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                  itemCount: _stories.length + 1,
+                  itemBuilder: (context, index) {
+                    if (index == 0) {
+                      // Add Story Button
+                      return Padding(
+                        padding: const EdgeInsets.only(right: 12),
+                        child: Column(
+                          children: [
+                            DottedBorder(
+                              color: brandPink,
+                              strokeWidth: 2,
+                              dashPattern: const [6, 3],
+                              radius: const Radius.circular(50),
+                              child: Container(
+                                width: 60,
+                                height: 60,
+                                decoration: const BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: backgroundColor,
+                                ),
+                                child: const Icon(
+                                  Icons.add,
+                                  color: brandPink,
+                                  size: 28,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              'ADD',
+                              style: GoogleFonts.poppins(
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                                color: bodyColor,
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }
+
+                    // User Story Item
+                    final storyIndex = index - 1;
                     return Padding(
                       padding: const EdgeInsets.only(right: 12),
                       child: Column(
                         children: [
-                          DottedBorder(
-                            color: brandPink,
-                            strokeWidth: 2,
-                            dashPattern: const [6, 3],
-                            radius: const Radius.circular(50),
-                            child: Container(
-                              width: 60,
-                              height: 60,
-                              decoration: const BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: backgroundColor,
-                              ),
-                              child: const Icon(
-                                Icons.add,
+                          Container(
+                            width: 64,
+                            height: 64,
+                            padding: const EdgeInsets.all(2),
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(
                                 color: brandPink,
-                                size: 28,
+                                width: 2,
+                              ),
+                            ),
+                            child: CircleAvatar(
+                              radius: 30,
+                              backgroundImage: CachedNetworkImageProvider(
+                                _stories[storyIndex],
                               ),
                             ),
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            'ADD',
+                            'USER${storyIndex + 1}',
                             style: GoogleFonts.poppins(
                               fontSize: 10,
                               fontWeight: FontWeight.bold,
@@ -145,74 +199,38 @@ class _FeedScreenState extends State<FeedScreen> {
                         ],
                       ),
                     );
-                  }
-
-                  // User Story Item
-                  final storyIndex = index - 1;
-                  return Padding(
-                    padding: const EdgeInsets.only(right: 12),
-                    child: Column(
-                      children: [
-                        Container(
-                          width: 64,
-                          height: 64,
-                          padding: const EdgeInsets.all(2),
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: brandPink,
-                              width: 2,
-                            ),
-                          ),
-                          child: CircleAvatar(
-                            radius: 30,
-                            backgroundImage: CachedNetworkImageProvider(
-                              _stories[storyIndex],
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          'USER${storyIndex + 1}',
-                          style: GoogleFonts.poppins(
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
-                            color: bodyColor,
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                },
+                  },
+                ),
               ),
             ),
-          ),
 
-          // Posts Section
-          SliverList(
-            delegate: SliverChildBuilderDelegate(
-              (context, index) {
-                return PostCard(
-                  post: _posts[index],
-                  onLike: () {
-                    setState(() {
-                      _posts[index].isLiked = !_posts[index].isLiked;
-                      _posts[index].likes += _posts[index].isLiked ? 1 : -1;
-                    });
-                  },
-                );
-              },
-              childCount: _posts.length,
+            // Posts Section
+            SliverList(
+              delegate: SliverChildBuilderDelegate(
+                (context, index) {
+                  return PostCard(
+                    post: _posts[index],
+                    onLoginRequired: () {
+                      showModalBottomSheet(
+                        context: context,
+                        isScrollControlled: true,
+                        builder: (_) => const LoginModal(),
+                      );
+                    },
+                  );
+                },
+                childCount: _posts.length,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
 
       // FAB
       floatingActionButton: Container(
         margin: const EdgeInsets.only(bottom: 40),
         child: FloatingActionButton(
-          onPressed: () => context.push('/feed/create'),
+          onPressed: _onFabPressed,
           backgroundColor: brandPink,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
@@ -224,4 +242,3 @@ class _FeedScreenState extends State<FeedScreen> {
     );
   }
 }
-

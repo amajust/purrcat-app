@@ -1,31 +1,32 @@
 import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:go_router/go_router.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
+import '../../../../data/services/firestore_service.dart';
+import '../../../../data/models/feed_model.dart';
 
 class CreatePostScreen extends StatefulWidget {
-  /// Pass the image file to preview. If null, opens camera immediately.
-  final XFile? initialImage;
-
-  const CreatePostScreen({super.key, this.initialImage});
+  const CreatePostScreen({super.key});
 
   @override
   State<CreatePostScreen> createState() => _CreatePostScreenState();
 }
 
 class _CreatePostScreenState extends State<CreatePostScreen> {
-  final _captionController = TextEditingController();
-  final _picker = ImagePicker();
-  XFile? _image;
+  final List<XFile> _images = [];
+  final TextEditingController _captionController = TextEditingController();
+  final ImagePicker _picker = ImagePicker();
   bool _isPosting = false;
+  int _maxImages = 5;
+  int _selectedImageIndex = 0;
 
   @override
   void initState() {
     super.initState();
-    _image = widget.initialImage;
-    if (_image == null) {
-      _openCamera();
-    }
+    _loadMaxImages();
   }
 
   @override
@@ -34,37 +35,79 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
     super.dispose();
   }
 
+  Future<void> _loadMaxImages() async {
+    final max = await FirestoreService().getMaxImagesPerPost();
+    if (mounted) {
+      setState(() => _maxImages = max);
+    }
+  }
+
   Future<void> _openCamera() async {
     final image = await _picker.pickImage(source: ImageSource.camera);
     if (image != null && mounted) {
-      setState(() => _image = image);
-    } else if (mounted) {
-      context.pop();
+      setState(() {
+        _images.add(image);
+        _selectedImageIndex = _images.length - 1;
+      });
     }
   }
 
   Future<void> _openGallery() async {
-    final image = await _picker.pickImage(source: ImageSource.gallery);
-    if (image != null && mounted) {
-      setState(() => _image = image);
+    final images = await _picker.pickMultiImage();
+    if (images.isNotEmpty && mounted) {
+      setState(() {
+        final remaining = _maxImages - _images.length;
+        final toAdd = images.take(remaining).toList();
+        _images.addAll(toAdd);
+        if (_images.isNotEmpty) {
+          _selectedImageIndex = _images.length - 1;
+        }
+      });
     }
   }
 
+  void _removeImage(int index) {
+    setState(() {
+      _images.removeAt(index);
+      if (_selectedImageIndex >= _images.length) {
+        _selectedImageIndex = _images.isNotEmpty ? _images.length - 1 : 0;
+      }
+    });
+  }
+
   Future<void> _post() async {
-    if (_image == null) return;
+    if (_images.isEmpty) return;
     setState(() => _isPosting = true);
 
-    // TODO: Upload image to Firebase Storage / Cloudflare R2
-    // For now, just pass the data back
-    final postData = {
-      'imagePath': _image!.path,
-      'caption': _captionController.text.trim(),
-      'timestamp': DateTime.now().toIso8601String(),
-    };
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) throw Exception('Must be authenticated to post');
 
-    setState(() => _isPosting = false);
-    if (mounted) {
-      context.pop(postData);
+      final post = Post(
+        id: '',
+        userId: user.uid,
+        userName: user.displayName ?? 'User',
+        userAvatar: user.photoURL ?? '',
+        content: _captionController.text.trim(),
+        createdAt: DateTime.now(),
+      );
+
+      final imageFiles = _images.map((x) => File(x.path)).toList();
+      await FirestoreService().createPost(post: post, images: imageFiles);
+
+      if (mounted) {
+        context.pop();
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isPosting = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to post: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
@@ -89,7 +132,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
         ),
         centerTitle: true,
         actions: [
-          if (_image != null)
+          if (_images.isNotEmpty)
             TextButton(
               onPressed: _isPosting ? null : _post,
               child: _isPosting
@@ -109,9 +152,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
             ),
         ],
       ),
-      body: _image == null
-          ? _buildImagePicker()
-          : _buildPreview(),
+      body: _images.isEmpty ? _buildImagePicker() : _buildEditor(),
     );
   }
 
@@ -148,21 +189,114 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
     );
   }
 
-  Widget _buildPreview() {
+  Widget _buildEditor() {
     return Column(
       children: [
-        // Image preview — full width, fixed height
-        Container(
-          width: double.infinity,
-          height: MediaQuery.of(context).size.width, // square
-          decoration: BoxDecoration(
-            color: Colors.grey[200],
-            image: DecorationImage(
-              image: FileImage(File(_image!.path)),
-              fit: BoxFit.cover,
-            ),
+        // Horizontal scrollable image strip
+        SizedBox(
+          height: 120,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            itemCount: _images.length + (_images.length < _maxImages ? 1 : 0),
+            itemBuilder: (context, index) {
+              // "Add more" button
+              if (index == _images.length) {
+                return Padding(
+                  padding: const EdgeInsets.only(right: 8),
+                  child: GestureDetector(
+                    onTap: _openGallery,
+                    child: Container(
+                      width: 100,
+                      height: 100,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: const Color(0xFFA03A57),
+                          width: 2,
+                        ),
+                      ),
+                      child: const Icon(
+                        Icons.add_photo_alternate_outlined,
+                        color: Color(0xFFA03A57),
+                        size: 32,
+                      ),
+                    ),
+                  ),
+                );
+              }
+
+              // Thumbnail with remove overlay
+              final isSelected = index == _selectedImageIndex;
+              return Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: GestureDetector(
+                  onTap: () => setState(() => _selectedImageIndex = index),
+                  child: Stack(
+                    children: [
+                      Container(
+                        width: 100,
+                        height: 100,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: isSelected
+                                ? const Color(0xFFA03A57)
+                                : Colors.transparent,
+                            width: 2,
+                          ),
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(10),
+                          child: Image.file(
+                            File(_images[index].path),
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+                      // X button to remove
+                      Positioned(
+                        top: -4,
+                        right: -4,
+                        child: GestureDetector(
+                          onTap: () => _removeImage(index),
+                          child: Container(
+                            width: 24,
+                            height: 24,
+                            decoration: const BoxDecoration(
+                              color: Colors.black54,
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.close,
+                              color: Colors.white,
+                              size: 16,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
           ),
         ),
+
+        // Large preview of selected image
+        if (_images.isNotEmpty && _selectedImageIndex < _images.length)
+          Container(
+            width: double.infinity,
+            height: MediaQuery.of(context).size.width,
+            decoration: BoxDecoration(
+              color: Colors.grey[200],
+              image: DecorationImage(
+                image: FileImage(File(_images[_selectedImageIndex].path)),
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+
         // Caption input
         Padding(
           padding: const EdgeInsets.all(16),

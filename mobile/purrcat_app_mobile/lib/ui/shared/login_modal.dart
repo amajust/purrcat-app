@@ -5,7 +5,9 @@ import 'package:go_router/go_router.dart';
 import '../features/auth/view_models/auth_provider.dart';
 
 class LoginModal extends StatelessWidget {
-  const LoginModal({super.key});
+  final VoidCallback? onLoginSuccess;
+
+  const LoginModal({super.key, this.onLoginSuccess});
 
   @override
   Widget build(BuildContext context) {
@@ -61,6 +63,7 @@ class LoginModal extends StatelessWidget {
                   : () async {
                       final success = await auth.signInWithGoogle();
                       if (success && context.mounted) {
+                        onLoginSuccess?.call();
                         Navigator.pop(context);
                       } else if (context.mounted && auth.error != null) {
                         ScaffoldMessenger.of(context).showSnackBar(
@@ -77,10 +80,14 @@ class LoginModal extends StatelessWidget {
                       height: 20,
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
-                  : Image.asset('assets/images/google_logo.png', width: 24, height: 24),
-              label: Text(auth.isLoading
-                  ? 'Signing in...'
-                  : 'Sign in with Google'),
+                  : Image.asset(
+                      'assets/images/google_logo.png',
+                      width: 24,
+                      height: 24,
+                    ),
+              label: Text(
+                auth.isLoading ? 'Signing in...' : 'Sign in with Google',
+              ),
               style: OutlinedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 backgroundColor: Colors.white,

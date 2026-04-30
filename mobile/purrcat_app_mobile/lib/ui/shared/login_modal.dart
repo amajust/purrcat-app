@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
+
+import '../features/auth/view_models/auth_provider.dart';
 
 class LoginModal extends StatelessWidget {
   const LoginModal({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final auth = context.read<AuthProvider>();
+
     return Container(
       padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
       decoration: const BoxDecoration(
@@ -51,26 +56,38 @@ class LoginModal extends StatelessWidget {
           SizedBox(
             width: double.infinity,
             child: OutlinedButton.icon(
-              onPressed: () {
-                // TODO: Google Sign In
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Google Sign In coming soon')),
-                );
-              },
-              icon: Image.network(
-                'https://www.google.com/favicon.ico',
-                width: 20,
-                height: 20,
-                errorBuilder: (_, __, ___) =>
-                    const Icon(Icons.g_mobiledata, size: 24),
-              ),
-              label: const Text('Continue with Google'),
+              onPressed: auth.isLoading
+                  ? null
+                  : () async {
+                      final success = await auth.signInWithGoogle();
+                      if (success && context.mounted) {
+                        Navigator.pop(context);
+                      } else if (context.mounted && auth.error != null) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(auth.error!),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
+                      }
+                    },
+              icon: auth.isLoading
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : Image.asset('assets/images/google_logo.png', width: 24, height: 24),
+              label: Text(auth.isLoading
+                  ? 'Signing in...'
+                  : 'Sign in with Google'),
               style: OutlinedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 14),
+                backgroundColor: Colors.white,
                 foregroundColor: Colors.black87,
-                side: const BorderSide(color: Colors.grey),
+                side: const BorderSide(color: Color(0xFFDADCE0)),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(4),
                 ),
               ),
             ),
@@ -80,10 +97,12 @@ class LoginModal extends StatelessWidget {
           SizedBox(
             width: double.infinity,
             child: ElevatedButton.icon(
-              onPressed: () {
-                Navigator.pop(context);
-                context.go('/login');
-              },
+              onPressed: auth.isLoading
+                  ? null
+                  : () {
+                      Navigator.pop(context);
+                      context.push('/login');
+                    },
               icon: const Icon(Icons.email_outlined, size: 20),
               label: const Text('Continue with Email'),
               style: ElevatedButton.styleFrom(
@@ -107,7 +126,7 @@ class LoginModal extends StatelessWidget {
               GestureDetector(
                 onTap: () {
                   Navigator.pop(context);
-                  context.go('/register');
+                  context.push('/register');
                 },
                 child: const Text(
                   'Sign Up',

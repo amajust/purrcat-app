@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart' hide AuthProvider;
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../../feed/views/feed_screen.dart';
 import '../../marketplace/views/marketplace_screen.dart';
+import '../../profile/views/profile_screen.dart';
 import '../../../../ui/shared/bottom_nav_component.dart';
 import '../../../../ui/shared/login_modal.dart';
+import '../../../../ui/core/theme.dart';
 import '../../auth/view_models/auth_provider.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -21,7 +25,7 @@ class _HomeScreenState extends State<HomeScreen> {
     const FeedScreen(),
     const MarketplaceScreen(),
     const Center(child: Text('Services Screen')),
-    const Center(child: Text('Profile Screen')),
+    const ProfileScreen(),
   ];
 
   void _onTabTapped(int index) {
@@ -30,19 +34,35 @@ class _HomeScreenState extends State<HomeScreen> {
       if (auth.isAuthenticated) {
         setState(() => _currentIndex = 3);
       } else {
-        showLoginModal(context);
+        showLoginModal(context, onLoginSuccess: () {
+          setState(() => _currentIndex = 3);
+        });
         return;
       }
     }
     setState(() => _currentIndex = index);
   }
 
-  void showLoginModal(BuildContext context) {
+  void _onFabPressed() {
+    if (FirebaseAuth.instance.currentUser == null) {
+      showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        builder: (_) => LoginModal(
+          onLoginSuccess: () => context.push('/feed/create'),
+        ),
+      );
+    } else {
+      context.push('/feed/create');
+    }
+  }
+
+  void showLoginModal(BuildContext context, {VoidCallback? onLoginSuccess}) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => const LoginModal(),
+      builder: (_) => LoginModal(onLoginSuccess: onLoginSuccess),
     );
   }
 
@@ -50,6 +70,17 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: _screens[_currentIndex],
+      floatingActionButton: _currentIndex == 0
+          ? FloatingActionButton(
+              onPressed: _onFabPressed,
+              backgroundColor: brandPink,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: const Icon(Icons.camera_alt_rounded, color: Colors.white),
+            )
+          : null,
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       bottomNavigationBar: BottomNavComponent(
         currentIndex: _currentIndex,
         onTap: _onTabTapped,

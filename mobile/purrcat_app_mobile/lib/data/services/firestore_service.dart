@@ -42,19 +42,27 @@ class FirestoreService {
     // Upload each image and collect download URLs.
     final List<String> imageUrls = [];
     for (int i = 0; i < images.length; i++) {
-      final ref = _storage.ref('posts/$postId/image_$i.jpg');
-      await ref.putFile(images[i]);
-      final url = await ref.getDownloadURL();
-      imageUrls.add(url);
+      try {
+        final ref = _storage.ref('posts/$postId/image_$i.jpg');
+        await ref.putFile(images[i]);
+        final url = await ref.getDownloadURL();
+        imageUrls.add(url);
+      } on FirebaseException catch (e) {
+        throw Exception('Storage upload failed [${e.code}]: ${e.message}');
+      }
     }
 
     // Write post document with the download URLs.
-    await docRef.set({
-      ...post.toFirestore(),
-      'id': postId,
-      'imageUrls': imageUrls,
-      'createdAt': FieldValue.serverTimestamp(),
-    });
+    try {
+      await docRef.set({
+        ...post.toFirestore(),
+        'id': postId,
+        'imageUrls': imageUrls,
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+    } on FirebaseException catch (e) {
+      throw Exception('Firestore write failed [${e.code}]: ${e.message}');
+    }
   }
 
   // ── Real-time posts feed ────────────────────────────────────────────

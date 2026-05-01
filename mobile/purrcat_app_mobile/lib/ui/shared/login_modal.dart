@@ -64,7 +64,7 @@ class LoginModal extends StatelessWidget {
                       final success = await auth.signInWithGoogle();
                       if (success && context.mounted) {
                         onLoginSuccess?.call();
-                        Navigator.pop(context);
+                        Navigator.of(context, rootNavigator: true).pop();
                       } else if (context.mounted && auth.error != null) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
@@ -107,7 +107,7 @@ class LoginModal extends StatelessWidget {
               onPressed: auth.isLoading
                   ? null
                   : () {
-                      Navigator.pop(context);
+                      Navigator.of(context, rootNavigator: true).pop();
                       context.push('/login');
                     },
               icon: const Icon(Icons.email_outlined, size: 20),
@@ -132,7 +132,7 @@ class LoginModal extends StatelessWidget {
               ),
               GestureDetector(
                 onTap: () {
-                  Navigator.pop(context);
+                  Navigator.of(context, rootNavigator: true).pop();
                   context.push('/register');
                 },
                 child: const Text(

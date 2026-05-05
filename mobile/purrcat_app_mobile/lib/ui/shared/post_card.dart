@@ -158,23 +158,18 @@ class _PostCardState extends State<PostCard> {
             trailing: PopupMenuButton<String>(
               icon: const Icon(Icons.more_horiz, color: headingColor),
               onSelected: (value) {
-                if (value == 'report') {
-                  showReportModal(
-                    context,
-                    itemId: post.id,
-                    itemType: 'feed',
-                    itemPreview: post.content,
-                  );
+                if (value == 'delete') {
+                  // TODO: implement delete
                 }
               },
               itemBuilder: (_) => [
                 const PopupMenuItem(
-                  value: 'report',
+                  value: 'delete',
                   child: Row(
                     children: [
-                      Icon(Icons.flag_outlined, size: 18, color: bodyColor),
+                      Icon(Icons.delete_outline, size: 18, color: Colors.redAccent),
                       SizedBox(width: 8),
-                      Text('Report'),
+                      Text('Delete', style: TextStyle(color: Colors.redAccent)),
                     ],
                   ),
                 ),

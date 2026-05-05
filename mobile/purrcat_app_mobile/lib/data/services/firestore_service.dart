@@ -257,6 +257,38 @@ class FirestoreService {
             .toList());
   }
 
+  /// Toggles a marketplace item in the user's favorites.
+  Future<void> toggleMarketplaceFavorite({
+    required String itemId,
+    required String userId,
+  }) async {
+    final favRef = _firestore
+        .collection('users')
+        .doc(userId)
+        .collection('favorites')
+        .doc(itemId);
+
+    final doc = await favRef.get();
+    if (doc.exists) {
+      await favRef.delete();
+    } else {
+      await favRef.set({
+        'itemId': itemId,
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+    }
+  }
+
+  /// Real-time stream of the current user's favorite item IDs.
+  Stream<Set<String>> getFavoriteIds(String userId) {
+    return _firestore
+        .collection('users')
+        .doc(userId)
+        .collection('favorites')
+        .snapshots()
+        .map((snap) => snap.docs.map((d) => d.id).toSet());
+  }
+
   // ── Configuration ───────────────────────────────────────────────────
 
   /// Reads the maximum number of images allowed per post from the remote

@@ -9,6 +9,8 @@ import '../../../../ui/core/theme.dart';
 import '../../../../ui/shared/app_logo.dart';
 import '../../../../data/models/marketplace_model.dart';
 import '../../../../data/services/firestore_service.dart';
+import '../../../../ui/shared/login_modal.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 // ═══════════════════════════════════════════════════════════════
 // Mock data — cat-focused per spec
@@ -16,6 +18,7 @@ import '../../../../data/services/firestore_service.dart';
 
 const List<CategoryFilter> _categoryFilters = [
   CategoryFilter(icon: Icons.grid_view_rounded, label: 'All'),
+  CategoryFilter(icon: Icons.favorite_border, label: 'Favorites'),
   CategoryFilter(icon: Icons.pets, label: 'Kittens'),
   CategoryFilter(icon: Icons.toys, label: 'Toys'),
   CategoryFilter(icon: Icons.restaurant, label: 'Food'),
@@ -155,12 +158,13 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> {
   String _selectedCategory = 'All';
   List<MarketplaceItem> _allItems = [];
   List<MarketplaceItem> _filteredItems = [];
+  Set<String> _favoriteIds = {};
   StreamSubscription<List<MarketplaceItem>>? _listingsSub;
+  StreamSubscription<Set<String>>? _favSub;
 
   @override
   void initState() {
     super.initState();
-    // Start with mock data, then merge Firestore data on arrival
     _allItems = List.from(_mockItems);
     _filteredItems = List.from(_mockItems);
     _listingsSub = FirestoreService()
@@ -168,7 +172,6 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> {
         .listen((firestoreItems) {
       if (!mounted) return;
       setState(() {
-        // Merge: Firestore items first, then mock (no duplicates)
         final firestoreIds = firestoreItems.map((e) => e.id).toSet();
         final merged = [
           ...firestoreItems,
@@ -177,18 +180,34 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> {
         _allItems = merged;
         _applyFilter();
       });
+    }, onError: (error) {
+      debugPrint('Marketplace stream error (using mock data): $error');
     });
+
+    // Subscribe to favorites
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid != null) {
+      _favSub = FirestoreService().getFavoriteIds(uid).listen((ids) {
+        if (!mounted) return;
+        setState(() => _favoriteIds = ids);
+        _applyFilter();
+      });
+    }
   }
 
   @override
   void dispose() {
     _listingsSub?.cancel();
+    _favSub?.cancel();
     super.dispose();
   }
 
   void _applyFilter() {
     if (_selectedCategory == 'All') {
       _filteredItems = List.from(_allItems);
+    } else if (_selectedCategory == 'Favorites') {
+      _filteredItems =
+          _allItems.where((i) => _favoriteIds.contains(i.id)).toList();
     } else {
       _filteredItems =
           _allItems.where((i) => i.category == _selectedCategory).toList();
@@ -200,6 +219,23 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> {
       _selectedCategory = category;
       _applyFilter();
     });
+  }
+
+  void _handleToggleFavorite(MarketplaceItem item) async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        backgroundColor: Colors.transparent,
+        builder: (_) => const LoginModal(),
+      );
+      return;
+    }
+    await FirestoreService().toggleMarketplaceFavorite(
+      itemId: item.id,
+      userId: user.uid,
+    );
   }
 
   @override
@@ -416,7 +452,11 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> {
           childAspectRatio: 0.66,
         ),
         delegate: SliverChildBuilderDelegate(
-          (context, index) => _ProductCard(item: _filteredItems[index]),
+          (context, index) => _ProductCard(
+            item: _filteredItems[index],
+            isFavorite: _favoriteIds.contains(_filteredItems[index].id),
+            onToggleFavorite: () => _handleToggleFavorite(_filteredItems[index]),
+          ),
           childCount: _filteredItems.length,
         ),
       ),
@@ -430,7 +470,14 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> {
 
 class _ProductCard extends StatelessWidget {
   final MarketplaceItem item;
-  const _ProductCard({required this.item});
+  final bool isFavorite;
+  final VoidCallback onToggleFavorite;
+
+  const _ProductCard({
+    required this.item,
+    required this.isFavorite,
+    required this.onToggleFavorite,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -489,21 +536,26 @@ class _ProductCard extends StatelessWidget {
             Positioned(
               top: 8,
               right: 8,
-              child: Container(
-                width: 32,
-                height: 32,
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                        color: Colors.black12, blurRadius: 4, offset: Offset(0, 2)),
-                  ],
-                ),
-                child: Icon(
-                  item.isFavorite ? Icons.favorite : Icons.favorite_border,
-                  size: 16,
-                  color: item.isFavorite ? brandPink : bodyColor,
+              child: GestureDetector(
+                onTap: onToggleFavorite,
+                child: Container(
+                  width: 32,
+                  height: 32,
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                          color: Colors.black12,
+                          blurRadius: 4,
+                          offset: Offset(0, 2)),
+                    ],
+                  ),
+                  child: Icon(
+                    isFavorite ? Icons.favorite : Icons.favorite_border,
+                    size: 16,
+                    color: isFavorite ? brandPink : bodyColor,
+                  ),
                 ),
               ),
             ),

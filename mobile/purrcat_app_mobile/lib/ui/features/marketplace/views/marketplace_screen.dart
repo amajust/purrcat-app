@@ -10,6 +10,7 @@ import '../../../../ui/shared/app_logo.dart';
 import '../../../../data/models/marketplace_model.dart';
 import '../../../../data/services/firestore_service.dart';
 import '../../../../ui/shared/login_modal.dart';
+import '../../../../ui/shared/report_modal.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 // ═══════════════════════════════════════════════════════════════
@@ -497,7 +498,7 @@ class _ProductCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Image with overlays
-          _buildImageSection(),
+          _buildImageSection(context),
           // Content
           Expanded(
             child: Padding(
@@ -510,7 +511,7 @@ class _ProductCard extends StatelessWidget {
     );
   }
 
-  Widget _buildImageSection() {
+  Widget _buildImageSection(BuildContext context) {
     return ClipRRect(
       borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
       child: AspectRatio(
@@ -530,6 +531,38 @@ class _ProductCard extends StatelessWidget {
               errorWidget: (_, __, ___) => Container(
                 color: Colors.grey.shade200,
                 child: Icon(Icons.pets, size: 32, color: brandPink.withOpacity(0.4)),
+              ),
+            ),
+            // Report button — top left
+            Positioned(
+              top: 8,
+              left: 8,
+              child: GestureDetector(
+                onTap: () => showReportModal(
+                  context,
+                  itemId: item.id,
+                  itemType: 'marketplace',
+                  itemPreview: item.name,
+                ),
+                child: Container(
+                  width: 32,
+                  height: 32,
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                          color: Colors.black12,
+                          blurRadius: 4,
+                          offset: Offset(0, 2)),
+                    ],
+                  ),
+                  child: const Icon(
+                    Icons.flag_outlined,
+                    size: 16,
+                    color: bodyColor,
+                  ),
+                ),
               ),
             ),
             // Favorite button — top right

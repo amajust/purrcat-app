@@ -279,6 +279,43 @@ class FirestoreService {
     }
   }
 
+  // ── Reports ──────────────────────────────────────────────────────────
+
+  /// Submits a content report to Firestore `reports/{reportId}`.
+  ///
+  /// [itemId] — the post ID (feed) or listing ID (marketplace).
+  /// [itemType] — 'feed' or 'marketplace'.
+  /// [reporterId] — the uid of the user submitting the report.
+  /// [reason] — one of the predefined report reasons.
+  /// [description] — optional free-text detail from reporter.
+  /// [itemPreview] — optional snippet for moderator context.
+  Future<void> reportContent({
+    required String itemId,
+    required String itemType,
+    required String reporterId,
+    required String reason,
+    String? description,
+    String? itemPreview,
+  }) async {
+    final docRef = _firestore.collection('reports').doc();
+
+    try {
+      await docRef.set({
+        'id': docRef.id,
+        'itemId': itemId,
+        'itemType': itemType,
+        'reporterId': reporterId,
+        'reason': reason,
+        'description': description ?? '',
+        'itemPreview': itemPreview ?? '',
+        'status': 'pending',
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+    } on FirebaseException catch (e) {
+      throw Exception('Report submit failed [${e.code}]: ${e.message}');
+    }
+  }
+
   /// Real-time stream of the current user's favorite item IDs.
   Stream<Set<String>> getFavoriteIds(String userId) {
     return _firestore

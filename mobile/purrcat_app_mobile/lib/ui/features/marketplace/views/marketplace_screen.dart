@@ -4,6 +4,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '../../../../ui/core/theme.dart';
+import '../../../../ui/shared/app_logo.dart';
 import '../../../../data/models/marketplace_model.dart';
 
 // ═══════════════════════════════════════════════════════════════
@@ -194,28 +195,7 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> {
       surfaceTintColor: Colors.transparent,
       elevation: 0,
       titleSpacing: 4,
-      title: Row(
-        children: [
-          Container(
-            width: 32,
-            height: 32,
-            decoration: BoxDecoration(
-              color: brandPink,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: const Icon(Icons.pets, color: Colors.white, size: 18),
-          ),
-          const SizedBox(width: 8),
-          Text(
-            'Purrfect',
-            style: GoogleFonts.inter(
-              fontSize: 20,
-              fontWeight: FontWeight.w800,
-              color: brandPink,
-            ),
-          ),
-        ],
-      ),
+      title: const AppLogo(),
       actions: [
         IconButton(
           icon: const Icon(Icons.search, color: headingColor, size: 22),

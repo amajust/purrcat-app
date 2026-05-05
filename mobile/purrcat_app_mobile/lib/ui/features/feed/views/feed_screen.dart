@@ -9,6 +9,7 @@ import 'dart:async';
 import '../../../../data/models/feed_model.dart';
 import '../../../../data/services/firestore_service.dart';
 import '../../../../ui/core/theme.dart';
+import '../../../../ui/shared/app_logo.dart';
 import '../../../../ui/shared/post_card.dart';
 import '../../../../ui/shared/login_modal.dart';
 
@@ -83,14 +84,7 @@ class _FeedScreenState extends State<FeedScreen> {
           SliverAppBar(
             backgroundColor: backgroundColor,
             elevation: 0,
-            title: Text(
-              'PurrCat',
-              style: GoogleFonts.poppins(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: brandPink,
-              ),
-            ),
+            title: const AppLogo(),
             actions: [
               IconButton(
                 icon: const Icon(Icons.search_rounded, color: headingColor),

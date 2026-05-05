@@ -81,7 +81,11 @@ class _HomeScreenState extends State<HomeScreen> {
       // Marketplace FAB — filter/settings
       return FloatingActionButton(
         onPressed: () {
-          // TODO: Navigate to add product listing
+          if (FirebaseAuth.instance.currentUser == null) {
+            showLoginModal(context);
+          } else {
+            context.push('/marketplace/add');
+          }
         },
         backgroundColor: brandPink,
         shape: const CircleBorder(),

@@ -81,11 +81,11 @@ class _HomeScreenState extends State<HomeScreen> {
       // Marketplace FAB — filter/settings
       return FloatingActionButton(
         onPressed: () {
-          // TODO: Open marketplace filters
+          // TODO: Navigate to add product listing
         },
         backgroundColor: brandPink,
         shape: const CircleBorder(),
-        child: const Icon(Icons.tune_rounded, color: Colors.white, size: 24),
+        child: const Icon(Icons.add, color: Colors.white, size: 28),
       );
     }
     return null;

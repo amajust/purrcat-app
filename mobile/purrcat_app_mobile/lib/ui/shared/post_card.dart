@@ -10,6 +10,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../../data/models/feed_model.dart';
 import '../../data/services/firestore_service.dart';
 import '../core/theme.dart';
+import 'report_modal.dart';
 
 class PostCard extends StatefulWidget {
   final Post post;
@@ -154,7 +155,31 @@ class _PostCardState extends State<PostCard> {
                 color: bodyColor,
               ),
             ),
-            trailing: const Icon(Icons.more_horiz, color: headingColor),
+            trailing: PopupMenuButton<String>(
+              icon: const Icon(Icons.more_horiz, color: headingColor),
+              onSelected: (value) {
+                if (value == 'report') {
+                  showReportModal(
+                    context,
+                    itemId: post.id,
+                    itemType: 'feed',
+                    itemPreview: post.content,
+                  );
+                }
+              },
+              itemBuilder: (_) => [
+                const PopupMenuItem(
+                  value: 'report',
+                  child: Row(
+                    children: [
+                      Icon(Icons.flag_outlined, size: 18, color: bodyColor),
+                      SizedBox(width: 8),
+                      Text('Report'),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
 
           // Media Card

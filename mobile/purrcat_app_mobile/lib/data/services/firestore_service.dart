@@ -247,6 +247,16 @@ class FirestoreService {
     return {'age': age};
   }
 
+  /// Real-time stream of all marketplace listings ordered by newest first.
+  Stream<List<MarketplaceItem>> getMarketplaceListings() {
+    return marketplace
+        .orderBy('createdAt', descending: true)
+        .snapshots()
+        .map((snapshot) => snapshot.docs
+            .map((doc) => MarketplaceItem.fromFirestore(doc.id, doc.data()))
+            .toList());
+  }
+
   // ── Configuration ───────────────────────────────────────────────────
 
   /// Reads the maximum number of images allowed per post from the remote

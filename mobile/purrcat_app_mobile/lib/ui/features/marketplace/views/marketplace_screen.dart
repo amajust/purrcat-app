@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -6,6 +8,7 @@ import 'package:shimmer/shimmer.dart';
 import '../../../../ui/core/theme.dart';
 import '../../../../ui/shared/app_logo.dart';
 import '../../../../data/models/marketplace_model.dart';
+import '../../../../data/services/firestore_service.dart';
 
 // ═══════════════════════════════════════════════════════════════
 // Mock data — cat-focused per spec
@@ -20,7 +23,7 @@ const List<CategoryFilter> _categoryFilters = [
   CategoryFilter(icon: Icons.checkroom, label: 'Accessories'),
 ];
 
-final List<MarketplaceItem> _items = [
+final List<MarketplaceItem> _mockItems = [
   MarketplaceItem(
     id: '1',
     type: ListingType.pet,
@@ -150,22 +153,52 @@ class MarketplaceScreen extends StatefulWidget {
 
 class _MarketplaceScreenState extends State<MarketplaceScreen> {
   String _selectedCategory = 'All';
-  late List<MarketplaceItem> _filteredItems;
+  List<MarketplaceItem> _allItems = [];
+  List<MarketplaceItem> _filteredItems = [];
+  StreamSubscription<List<MarketplaceItem>>? _listingsSub;
 
   @override
   void initState() {
     super.initState();
-    _filteredItems = List.from(_items);
+    // Start with mock data, then merge Firestore data on arrival
+    _allItems = List.from(_mockItems);
+    _filteredItems = List.from(_mockItems);
+    _listingsSub = FirestoreService()
+        .getMarketplaceListings()
+        .listen((firestoreItems) {
+      if (!mounted) return;
+      setState(() {
+        // Merge: Firestore items first, then mock (no duplicates)
+        final firestoreIds = firestoreItems.map((e) => e.id).toSet();
+        final merged = [
+          ...firestoreItems,
+          ..._mockItems.where((m) => !firestoreIds.contains(m.id)),
+        ];
+        _allItems = merged;
+        _applyFilter();
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _listingsSub?.cancel();
+    super.dispose();
+  }
+
+  void _applyFilter() {
+    if (_selectedCategory == 'All') {
+      _filteredItems = List.from(_allItems);
+    } else {
+      _filteredItems =
+          _allItems.where((i) => i.category == _selectedCategory).toList();
+    }
   }
 
   void _onCategorySelected(String category) {
     setState(() {
       _selectedCategory = category;
-      if (category == 'All') {
-        _filteredItems = List.from(_items);
-      } else {
-        _filteredItems = _items.where((i) => i.category == category).toList();
-      }
+      _applyFilter();
     });
   }
 

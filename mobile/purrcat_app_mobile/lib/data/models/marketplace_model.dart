@@ -50,4 +50,30 @@ class MarketplaceItem {
       isFavorite: isFavorite ?? this.isFavorite,
     );
   }
+
+  factory MarketplaceItem.fromFirestore(String docId, Map<String, dynamic> data) {
+    return MarketplaceItem(
+      id: docId,
+      type: data['type'] == 'pet' ? ListingType.pet : ListingType.product,
+      name: (data['name'] as String?) ?? '',
+      breed: (data['breed'] as String?) ?? '',
+      price: (data['price'] as num?)?.toInt() ?? 0,
+      imageUrl: (data['imageUrl'] as String?) ?? '',
+      category: (data['category'] as String?) ?? 'Toys',
+      sellerName: (data['sellerName'] as String?) ?? 'Unknown',
+      rating: (data['rating'] as num?)?.toDouble() ?? 0.0,
+      reviewCount: (data['reviewCount'] as num?)?.toInt() ?? 0,
+      statusBadge: _parseStatusBadge(data['statusBadge']),
+      age: data['age'] as String?,
+    );
+  }
+
+  static StatusBadge? _parseStatusBadge(dynamic value) {
+    if (value == null) return null;
+    try {
+      return StatusBadge.values.firstWhere((e) => e.name == value);
+    } catch (_) {
+      return null;
+    }
+  }
 }

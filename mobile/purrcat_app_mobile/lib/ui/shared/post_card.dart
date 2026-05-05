@@ -231,6 +231,19 @@ class _PostCardState extends State<PostCard> {
                   ),
                   onPressed: () {},
                 ),
+                // Report button
+                IconButton(
+                  icon: const Icon(
+                    Icons.flag_outlined,
+                    color: headingColor,
+                  ),
+                  onPressed: () => showReportModal(
+                    context,
+                    itemId: widget.post.id,
+                    itemType: 'feed',
+                    itemPreview: widget.post.content,
+                  ),
+                ),
                 const Spacer(),
                 // Bookmark button
                 IconButton(

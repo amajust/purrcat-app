@@ -1,6 +1,145 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:shimmer/shimmer.dart';
 
-import '../../../../data/models/feed_model.dart';
+import '../../../../ui/core/theme.dart';
+import '../../../../ui/shared/app_logo.dart';
+import '../../../../data/models/marketplace_model.dart';
+
+// ═══════════════════════════════════════════════════════════════
+// Mock data — cat-focused per spec
+// ═══════════════════════════════════════════════════════════════
+
+const List<CategoryFilter> _categoryFilters = [
+  CategoryFilter(icon: Icons.grid_view_rounded, label: 'All'),
+  CategoryFilter(icon: Icons.pets, label: 'Kittens'),
+  CategoryFilter(icon: Icons.toys, label: 'Toys'),
+  CategoryFilter(icon: Icons.restaurant, label: 'Food'),
+  CategoryFilter(icon: Icons.health_and_safety, label: 'Health'),
+  CategoryFilter(icon: Icons.checkroom, label: 'Accessories'),
+];
+
+final List<MarketplaceItem> _items = [
+  MarketplaceItem(
+    id: '1',
+    type: ListingType.pet,
+    name: 'Maine Coon',
+    breed: 'Maine Coon',
+    price: 4500000,
+    imageUrl: 'https://images.unsplash.com/photo-1606214174585-fe31582dc6ee?w=400',
+    category: 'Kittens',
+    sellerName: 'Royal Kittens Manor',
+    rating: 4.9,
+    reviewCount: 87,
+    statusBadge: StatusBadge.premiumBreeder,
+    age: '3 MONTHS OLD',
+  ),
+  MarketplaceItem(
+    id: '2',
+    type: ListingType.product,
+    name: 'Feather Wand Toy',
+    breed: 'Toy',
+    price: 45000,
+    imageUrl: 'https://images.unsplash.com/photo-1574158622682-e40e69881006?w=400',
+    category: 'Toys',
+    sellerName: 'PurrPlay Store',
+    rating: 4.7,
+    reviewCount: 234,
+    statusBadge: StatusBadge.topRated,
+  ),
+  MarketplaceItem(
+    id: '3',
+    type: ListingType.pet,
+    name: 'Persian Kitten',
+    breed: 'Persian',
+    price: 3800000,
+    imageUrl: 'https://images.unsplash.com/photo-1571566882372-1598d88abd90?w=400',
+    category: 'Kittens',
+    sellerName: 'Persian Paradise',
+    rating: 4.8,
+    reviewCount: 56,
+    statusBadge: StatusBadge.vaccinated,
+    age: '2 MONTHS OLD',
+  ),
+  MarketplaceItem(
+    id: '4',
+    type: ListingType.product,
+    name: 'Premium Salmon Treats',
+    breed: 'Food',
+    price: 85000,
+    imageUrl: 'https://images.unsplash.com/photo-1583511655896-05754b09f52f?w=400',
+    category: 'Food',
+    sellerName: 'WhiskerBites Co.',
+    rating: 4.6,
+    reviewCount: 412,
+  ),
+  MarketplaceItem(
+    id: '5',
+    type: ListingType.pet,
+    name: 'British Shorthair',
+    breed: 'British Shorthair',
+    price: 5200000,
+    imageUrl: 'https://images.unsplash.com/photo-1574158622682-e40e69881006?w=400',
+    category: 'Kittens',
+    sellerName: 'Blue Haven Cattery',
+    rating: 4.9,
+    reviewCount: 128,
+    statusBadge: StatusBadge.premiumBreeder,
+    age: '4 MONTHS OLD',
+  ),
+  MarketplaceItem(
+    id: '6',
+    type: ListingType.product,
+    name: 'Catnip Mice Set',
+    breed: 'Toy',
+    price: 35000,
+    imageUrl: 'https://images.unsplash.com/photo-1543852786-1cf6624b9987?w=400',
+    category: 'Toys',
+    sellerName: 'PurrPlay Store',
+    rating: 4.5,
+    reviewCount: 189,
+  ),
+  MarketplaceItem(
+    id: '7',
+    type: ListingType.product,
+    name: 'Organic Catnip',
+    breed: 'Health',
+    price: 55000,
+    imageUrl: 'https://images.unsplash.com/photo-1518791841217-8f162f1e1131?w=400',
+    category: 'Health',
+    sellerName: 'GreenPaw Naturals',
+    rating: 4.8,
+    reviewCount: 76,
+    statusBadge: StatusBadge.healthCertified,
+  ),
+  MarketplaceItem(
+    id: '8',
+    type: ListingType.product,
+    name: 'Cozy Cat Bed',
+    breed: 'Accessory',
+    price: 175000,
+    imageUrl: 'https://images.unsplash.com/photo-1545249390-6bdfa286032f?w=400',
+    category: 'Accessories',
+    sellerName: 'SnugglePaws',
+    rating: 4.6,
+    reviewCount: 301,
+  ),
+];
+
+// ═══════════════════════════════════════════════════════════════
+// Models
+// ═══════════════════════════════════════════════════════════════
+
+class CategoryFilter {
+  final IconData icon;
+  final String label;
+  const CategoryFilter({required this.icon, required this.label});
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Screen
+// ═══════════════════════════════════════════════════════════════
 
 class MarketplaceScreen extends StatefulWidget {
   const MarketplaceScreen({super.key});
@@ -10,315 +149,474 @@ class MarketplaceScreen extends StatefulWidget {
 }
 
 class _MarketplaceScreenState extends State<MarketplaceScreen> {
-  // Mock data for demonstration
-  final List<Product> _products = [
-    Product(
-      id: '1',
-      name: 'Premium Cat Food',
-      description: 'Makanan kucing berkualitas tinggi dengan nutrisi lengkap',
-      price: 150000,
-      imageUrl: '',
-      category: 'Food',
-      sellerId: 'seller1',
-      sellerName: 'Pet Shop Jakarta',
-      stock: 50,
-      rating: 4.8,
-      reviewCount: 124,
-    ),
-    Product(
-      id: '2',
-      name: 'Cat Scratching Post',
-      description: 'Tempat garuk kucing dengan desain modern',
-      price: 250000,
-      imageUrl: '',
-      category: 'Equipment',
-      sellerId: 'seller2',
-      sellerName: 'Cat Supplies Store',
-      stock: 30,
-      rating: 4.5,
-      reviewCount: 89,
-    ),
-    Product(
-      id: '3',
-      name: 'Cat Litter Premium',
-      description: 'Pasir kucing wangi dan mudah dibersihkan',
-      price: 75000,
-      imageUrl: '',
-      category: 'Hygiene',
-      sellerId: 'seller3',
-      sellerName: 'Clean Pet Shop',
-      stock: 100,
-      rating: 4.7,
-      reviewCount: 201,
-    ),
-    Product(
-      id: '4',
-      name: 'Cat Toy Set',
-      description: 'Mainan kucing lucu untuk stimulasi bermain',
-      price: 85000,
-      imageUrl: '',
-      category: 'Toys',
-      sellerId: 'seller4',
-      sellerName: 'Fun Pets',
-      stock: 75,
-      rating: 4.6,
-      reviewCount: 156,
-    ),
-    Product(
-      id: '5',
-      name: 'Cat Bed Cozy',
-      description: 'Tempat tidur kucing yang nyaman dan empuk',
-      price: 180000,
-      imageUrl: '',
-      category: 'Equipment',
-      sellerId: 'seller5',
-      sellerName: 'Cozy Pets',
-      stock: 25,
-      rating: 4.9,
-      reviewCount: 78,
-    ),
-    Product(
-      id: '6',
-      name: 'Vitamin Cat',
-      description: 'Suplemen vitamin untuk kucing sehat',
-      price: 120000,
-      imageUrl: '',
-      category: 'Health',
-      sellerId: 'seller6',
-      sellerName: 'Pet Health Store',
-      stock: 60,
-      rating: 4.4,
-      reviewCount: 92,
-    ),
-  ];
-
-  final List<String> _categories = [
-    'All',
-    'Food',
-    'Equipment',
-    'Hygiene',
-    'Toys',
-    'Health',
-  ];
-
   String _selectedCategory = 'All';
+  late List<MarketplaceItem> _filteredItems;
+
+  @override
+  void initState() {
+    super.initState();
+    _filteredItems = List.from(_items);
+  }
+
+  void _onCategorySelected(String category) {
+    setState(() {
+      _selectedCategory = category;
+      if (category == 'All') {
+        _filteredItems = List.from(_items);
+      } else {
+        _filteredItems = _items.where((i) => i.category == category).toList();
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Row(
-          children: [
-            // Logo/Icon
-            Container(
-              width: 32,
-              height: 32,
-              decoration: BoxDecoration(
-                color: const Color(0xFFA03A57),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: const Icon(
-                Icons.storefront,
-                color: Colors.white,
-                size: 18,
-              ),
-            ),
-            const SizedBox(width: 8),
-            const Text(
-              'Marketplace',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 20,
-                color: Colors.black87,
-              ),
-            ),
-          ],
-        ),
-        backgroundColor: Colors.white,
-        elevation: 0,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.search, color: Colors.black54),
-            onPressed: () {},
-          ),
-          IconButton(
-            icon: const Icon(Icons.shopping_cart_outlined, color: Colors.black54),
-            onPressed: () {},
-          ),
+      backgroundColor: scaffoldBg,
+      body: CustomScrollView(
+        slivers: [
+          _buildAppBar(),
+          _buildHeroBanner(),
+          _buildCategoryChips(),
+          _buildProductGrid(),
+          const SliverToBoxAdapter(child: SizedBox(height: 80)),
         ],
       ),
-      backgroundColor: Colors.grey[50],
-      body: Column(
-        children: [
-          // Category Chips
-          Container(
-            height: 50,
-            color: Colors.white,
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              itemCount: _categories.length,
-              itemBuilder: (context, index) {
-                final category = _categories[index];
-                final isSelected = _selectedCategory == category;
-                return Padding(
-                  padding: const EdgeInsets.only(right: 8),
-                  child: FilterChip(
-                    label: Text(category),
-                    selected: isSelected,
-                    onSelected: (selected) {
-                      setState(() {
-                        _selectedCategory = category;
-                      });
-                    },
-                    selectedColor: const Color(0xFFA03A57),
-                    backgroundColor: Colors.grey[200],
-                    labelStyle: TextStyle(
-                      color: isSelected ? Colors.white : Colors.black87,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
+    );
+  }
+
+  // ── App Bar ──────────────────────────────────────────────────
+
+  Widget _buildAppBar() {
+    return SliverAppBar(
+      pinned: true,
+      floating: false,
+      backgroundColor: scaffoldBg,
+      surfaceTintColor: Colors.transparent,
+      elevation: 0,
+      titleSpacing: 4,
+      title: const AppLogo(),
+      actions: [
+        IconButton(
+          icon: const Icon(Icons.search, color: headingColor, size: 22),
+          onPressed: () {},
+        ),
+        IconButton(
+          icon: const Icon(Icons.notifications_outlined,
+              color: headingColor, size: 22),
+          onPressed: () {},
+        ),
+        const SizedBox(width: 4),
+      ],
+    );
+  }
+
+  // ── Hero Banner ──────────────────────────────────────────────
+
+  Widget _buildHeroBanner() {
+    return SliverToBoxAdapter(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+        child: Container(
+          height: 180,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            gradient: const LinearGradient(
+              colors: [Color(0xFFF07E96), Color(0xFFE8547A)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+          child: Stack(
+            children: [
+              // Cat image — right side, faded into gradient
+              Positioned(
+                right: -20,
+                bottom: 0,
+                child: Opacity(
+                  opacity: 0.35,
+                  child: Image.network(
+                    'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=300',
+                    width: 180,
+                    fit: BoxFit.contain,
+                    errorBuilder: (_, __, ___) => const SizedBox.shrink(),
                   ),
-                );
-              },
-            ),
-          ),
-          // Divider
-          const Divider(height: 1, color: Colors.grey),
-          // Products Grid
-          Expanded(
-            child: GridView.builder(
-              padding: const EdgeInsets.all(12),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                crossAxisSpacing: 12,
-                mainAxisSpacing: 12,
-                childAspectRatio: 0.75,
+                ),
               ),
-              itemCount: _products.length,
-              itemBuilder: (context, index) {
-                return _buildProductCard(_products[index]);
-              },
-            ),
+              // Text content — left side
+              Padding(
+                padding: const EdgeInsets.only(left: 24, top: 28, right: 140),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'SUMMER COLLECTION',
+                      style: GoogleFonts.inter(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.white.withOpacity(0.85),
+                        letterSpacing: 1.5,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Premium Treats & Playtime Essentials',
+                      style: GoogleFonts.inter(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w800,
+                        color: Colors.white,
+                        height: 1.2,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    // "Explore Now" button
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 20, vertical: 10),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(24),
+                      ),
+                      child: Text(
+                        'Explore Now',
+                        style: GoogleFonts.inter(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
+                          color: brandPink,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
-      floatingActionButton: Container(
-        width: 56,
-        height: 56,
-        decoration: BoxDecoration(
-          color: const Color(0xFFA03A57),
-          borderRadius: BorderRadius.circular(28),
-          boxShadow: [
-            BoxShadow(
-              color: const Color(0xFFA03A57).withOpacity(0.3),
-              blurRadius: 8,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: FloatingActionButton(
-          onPressed: () {
-            // TODO: Navigate to add product
-          },
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          foregroundColor: Colors.white,
-          child: const Icon(Icons.add, size: 28),
         ),
       ),
     );
   }
 
-  Widget _buildProductCard(Product product) {
+  // ── Category Chips ───────────────────────────────────────────
+
+  Widget _buildCategoryChips() {
+    return SliverToBoxAdapter(
+      child: Container(
+        height: 52,
+        margin: const EdgeInsets.only(top: 16, bottom: 4),
+        child: ListView.separated(
+          scrollDirection: Axis.horizontal,
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          itemCount: _categoryFilters.length,
+          separatorBuilder: (_, __) => const SizedBox(width: 8),
+          itemBuilder: (context, index) {
+            final cat = _categoryFilters[index];
+            final isSelected = _selectedCategory == cat.label;
+            return GestureDetector(
+              onTap: () => _onCategorySelected(cat.label),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                decoration: BoxDecoration(
+                  color: isSelected ? brandPink : Colors.grey.shade200,
+                  borderRadius: BorderRadius.circular(24),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      cat.icon,
+                      size: 16,
+                      color: isSelected ? Colors.white : bodyColor,
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      cat.label,
+                      style: GoogleFonts.inter(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: isSelected ? Colors.white : headingColor,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  // ── Product Grid ─────────────────────────────────────────────
+
+  Widget _buildProductGrid() {
+    if (_filteredItems.isEmpty) {
+      return SliverToBoxAdapter(
+        child: Padding(
+          padding: const EdgeInsets.only(top: 60),
+          child: Center(
+            child: Column(
+              children: [
+                Icon(Icons.inventory_2_outlined,
+                    size: 64, color: Colors.grey.shade400),
+                const SizedBox(height: 16),
+                Text(
+                  'No items in this category yet',
+                  style: GoogleFonts.inter(
+                      fontSize: 15, color: bodyColor),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
+    return SliverPadding(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+      sliver: SliverGrid(
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          crossAxisSpacing: 12,
+          mainAxisSpacing: 12,
+          childAspectRatio: 0.66,
+        ),
+        delegate: SliverChildBuilderDelegate(
+          (context, index) => _ProductCard(item: _filteredItems[index]),
+          childCount: _filteredItems.length,
+        ),
+      ),
+    );
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Product Card
+// ═══════════════════════════════════════════════════════════════
+
+class _ProductCard extends StatelessWidget {
+  final MarketplaceItem item;
+  const _ProductCard({required this.item});
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
+            color: Colors.black.withOpacity(0.06),
+            blurRadius: 8,
+            offset: const Offset(0, 3),
           ),
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Image placeholder
-          Container(
-            height: 120,
-            decoration: BoxDecoration(
-              color: Colors.grey[200],
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-            ),
-            child: const Center(
-              child: Icon(
-                Icons.pets,
-                size: 40,
-                color: Color(0xFFA03A57),
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(10),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Category
-                Text(
-                  product.category,
-                  style: const TextStyle(
-                    color: Color(0xFFA03A57),
-                    fontSize: 11,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                // Name
-                Text(
-                  product.name,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 14,
-                  ),
-                ),
-                const SizedBox(height: 6),
-                // Rating
-                Row(
-                  children: [
-                    const Icon(Icons.star, size: 14, color: Colors.amber),
-                    const SizedBox(width: 4),
-                    Text(
-                      product.rating.toString(),
-                      style: const TextStyle(fontSize: 12, color: Colors.grey),
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      '(${product.reviewCount})',
-                      style: const TextStyle(fontSize: 12, color: Colors.grey),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 6),
-                // Price
-                Text(
-                  'Rp ${product.price.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (match) => '${match[1]}.')}',
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                    color: Color(0xFFA03A57),
-                  ),
-                ),
-              ],
+          // Image with overlays
+          _buildImageSection(),
+          // Content
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
+              child: _buildContent(),
             ),
           ),
         ],
       ),
     );
+  }
+
+  Widget _buildImageSection() {
+    return ClipRRect(
+      borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+      child: AspectRatio(
+        aspectRatio: 4 / 3,
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            // Main image
+            CachedNetworkImage(
+              imageUrl: item.imageUrl,
+              fit: BoxFit.cover,
+              placeholder: (_, __) => Shimmer.fromColors(
+                baseColor: Colors.grey.shade300,
+                highlightColor: Colors.grey.shade100,
+                child: Container(color: Colors.grey.shade300),
+              ),
+              errorWidget: (_, __, ___) => Container(
+                color: Colors.grey.shade200,
+                child: Icon(Icons.pets, size: 32, color: brandPink.withOpacity(0.4)),
+              ),
+            ),
+            // Favorite button — top right
+            Positioned(
+              top: 8,
+              right: 8,
+              child: Container(
+                width: 32,
+                height: 32,
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                        color: Colors.black12, blurRadius: 4, offset: Offset(0, 2)),
+                  ],
+                ),
+                child: Icon(
+                  item.isFavorite ? Icons.favorite : Icons.favorite_border,
+                  size: 16,
+                  color: item.isFavorite ? brandPink : bodyColor,
+                ),
+              ),
+            ),
+            // Status badge — bottom left
+            if (item.statusBadge != null)
+              Positioned(
+                left: 0,
+                bottom: 0,
+                child: _buildStatusBadge(item.statusBadge!),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStatusBadge(StatusBadge badge) {
+    final (color, label) = switch (badge) {
+      StatusBadge.vaccinated =>
+        (const Color(0xFF4CAF50), 'VACCINATED'),
+      StatusBadge.premiumBreeder =>
+        (const Color(0xFF8B2252), 'PREMIUM BREEDER'),
+      StatusBadge.healthCertified =>
+        (const Color(0xFF2196F3), 'HEALTH CERTIFIED'),
+      StatusBadge.topRated =>
+        (const Color(0xFFF57C00), 'TOP RATED'),
+    };
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: const BorderRadius.only(
+          topRight: Radius.circular(8),
+          bottomLeft: Radius.circular(12),
+        ),
+      ),
+      child: Text(
+        label,
+        style: GoogleFonts.inter(
+          fontSize: 9,
+          fontWeight: FontWeight.w700,
+          color: Colors.white,
+          letterSpacing: 0.5,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildContent() {
+    final priceFmt = _formatPrice(item.price);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Title + Price row
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Text(
+                item.name,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: GoogleFonts.inter(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                  color: headingColor,
+                ),
+              ),
+            ),
+            const SizedBox(width: 4),
+            Text(
+              priceFmt,
+              style: GoogleFonts.inter(
+                fontSize: 14,
+                fontWeight: FontWeight.w800,
+                color: brandPink,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 4),
+
+        // Breeder / shop name with verified check
+        Row(
+          children: [
+            const Icon(Icons.verified, size: 14, color: Color(0xFF2196F3)),
+            const SizedBox(width: 4),
+            Expanded(
+              child: Text(
+                item.sellerName,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: GoogleFonts.inter(
+                  fontSize: 11,
+                  color: bodyColor,
+                ),
+              ),
+            ),
+          ],
+        ),
+        const Spacer(),
+
+        // Bottom row: star rating + age / health
+        Row(
+          children: [
+            const Icon(Icons.star_rounded, size: 14, color: Color(0xFFFFB800)),
+            const SizedBox(width: 3),
+            Text(
+              item.rating.toStringAsFixed(1),
+              style: GoogleFonts.inter(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: headingColor,
+              ),
+            ),
+            const SizedBox(width: 2),
+            Text(
+              '(${item.reviewCount})',
+              style: GoogleFonts.inter(fontSize: 10, color: bodyColor),
+            ),
+            const Spacer(),
+            if (item.age != null)
+              Text(
+                item.age!,
+                style: GoogleFonts.inter(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w600,
+                  color: bodyColor,
+                  letterSpacing: 0.3,
+                ),
+              ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  String _formatPrice(int price) {
+    if (price >= 1000000) {
+      return 'Rp${(price / 1000000).toStringAsFixed(1)}M';
+    }
+    if (price >= 1000) {
+      return 'Rp${(price / 1000).toStringAsFixed(0)}K';
+    }
+    return 'Rp$price';
   }
 }

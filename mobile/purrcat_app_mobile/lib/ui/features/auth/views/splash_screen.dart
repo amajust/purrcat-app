@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/theme.dart';
+
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
@@ -28,7 +30,7 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFA03A57),
+      backgroundColor: brandPink,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -44,7 +46,7 @@ class _SplashScreenState extends State<SplashScreen> {
               child: const Icon(
                 Icons.pets,
                 size: 60,
-                color: Color(0xFFA03A57),
+                color: brandPink,
               ),
             ),
             const SizedBox(height: 24),

@@ -66,20 +66,36 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  Widget? _buildFab() {
+    if (_currentIndex == 0) {
+      return FloatingActionButton(
+        onPressed: _onFabPressed,
+        backgroundColor: brandPink,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: const Icon(Icons.camera_alt_rounded, color: Colors.white),
+      );
+    }
+    if (_currentIndex == 1) {
+      // Marketplace FAB — filter/settings
+      return FloatingActionButton(
+        onPressed: () {
+          // TODO: Open marketplace filters
+        },
+        backgroundColor: brandPink,
+        shape: const CircleBorder(),
+        child: const Icon(Icons.tune_rounded, color: Colors.white, size: 24),
+      );
+    }
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: _screens[_currentIndex],
-      floatingActionButton: _currentIndex == 0
-          ? FloatingActionButton(
-              onPressed: _onFabPressed,
-              backgroundColor: brandPink,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: const Icon(Icons.camera_alt_rounded, color: Colors.white),
-            )
-          : null,
+      floatingActionButton: _buildFab(),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       bottomNavigationBar: BottomNavComponent(
         currentIndex: _currentIndex,

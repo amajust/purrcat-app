@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../core/theme.dart';
+
 class FeedHeader extends StatelessWidget implements PreferredSizeWidget {
   final String title;
   final Widget? leading;
@@ -32,7 +34,7 @@ class FeedHeader extends StatelessWidget implements PreferredSizeWidget {
               style: const TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
-                color: Color(0xFFA03A57),
+brandPink
               ),
             ),
           ),

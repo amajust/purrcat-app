@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../core/theme.dart';
+
 class PetChip extends StatelessWidget {
   final String name;
   final Color color;
@@ -28,7 +30,7 @@ class PetChip extends StatelessWidget {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 border: Border.all(
-                  color: isSelected ? const Color(0xFFA03A57) : Colors.grey[300]!,
+                  color: isSelected ? brandPink : Colors.grey[300]!,
                   width: 2,
                 ),
               ),
@@ -48,7 +50,7 @@ class PetChip extends StatelessWidget {
               name,
               style: TextStyle(
                 fontSize: 11,
-                color: isSelected ? const Color(0xFFA03A57) : Colors.grey,
+                color: isSelected ? brandPink : Colors.grey,
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
               ),
             ),

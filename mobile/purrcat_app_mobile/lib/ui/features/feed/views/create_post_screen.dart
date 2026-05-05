@@ -7,6 +7,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../../../data/services/firestore_service.dart';
 import '../../../../data/models/feed_model.dart';
+import '../../../../ui/core/theme.dart';
 
 class CreatePostScreen extends StatefulWidget {
   const CreatePostScreen({super.key});
@@ -144,7 +145,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                   : const Text(
                       'Post',
                       style: TextStyle(
-                        color: Color(0xFFA03A57),
+                        color: brandPink,
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
                       ),
@@ -212,13 +213,13 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: const Color(0xFFA03A57),
+                          color: brandPink,
                           width: 2,
                         ),
                       ),
                       child: const Icon(
                         Icons.add_photo_alternate_outlined,
-                        color: Color(0xFFA03A57),
+                        color: brandPink,
                         size: 32,
                       ),
                     ),
@@ -241,7 +242,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
                             color: isSelected
-                                ? const Color(0xFFA03A57)
+                                ? brandPink
                                 : Colors.transparent,
                             width: 2,
                           ),
@@ -309,7 +310,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
               hintText: 'Write a caption...',
               border: OutlineInputBorder(),
               focusedBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: Color(0xFFA03A57)),
+                borderSide: BorderSide(color: brandPink),
               ),
             ),
           ),
@@ -337,7 +338,7 @@ class _ActionChip extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
         decoration: BoxDecoration(
-          color: const Color(0xFFA03A57),
+          color: brandPink,
           borderRadius: BorderRadius.circular(12),
         ),
         child: Row(

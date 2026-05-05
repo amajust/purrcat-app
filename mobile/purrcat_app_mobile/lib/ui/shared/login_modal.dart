@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 
 import '../features/auth/view_models/auth_provider.dart';
+import '../core/theme.dart';
 
 class LoginModal extends StatelessWidget {
   final VoidCallback? onLoginSuccess;
@@ -37,7 +38,7 @@ class LoginModal extends StatelessWidget {
             width: 64,
             height: 64,
             decoration: BoxDecoration(
-              color: const Color(0xFFA03A57),
+              color: brandPink,
               borderRadius: BorderRadius.circular(32),
             ),
             child: const Icon(Icons.pets, color: Colors.white, size: 32),
@@ -114,7 +115,7 @@ class LoginModal extends StatelessWidget {
               label: const Text('Continue with Email'),
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 14),
-                backgroundColor: const Color(0xFFA03A57),
+                backgroundColor: brandPink,
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -138,7 +139,7 @@ class LoginModal extends StatelessWidget {
                 child: const Text(
                   'Sign Up',
                   style: TextStyle(
-                    color: Color(0xFFA03A57),
+                    color: brandPink,
                     fontWeight: FontWeight.bold,
                   ),
                 ),

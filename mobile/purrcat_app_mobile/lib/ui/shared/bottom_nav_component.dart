@@ -19,77 +19,63 @@ class BottomNavComponent extends StatelessWidget {
         color: backgroundColor,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 10,
+            color: Colors.black.withOpacity(0.08),
+            blurRadius: 12,
             offset: const Offset(0, -2),
           ),
         ],
       ),
-      child: BottomNavigationBar(
-        currentIndex: currentIndex,
-        onTap: onTap,
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: brandPink,
-        unselectedItemColor: bodyColor,
-        backgroundColor: backgroundColor,
-        items: [
-          BottomNavigationBarItem(
-            icon: Container(
-              padding: const EdgeInsets.all(4),
-              decoration: BoxDecoration(
-                color: currentIndex == 0 ? brandPink.withOpacity(0.1) : Colors.transparent,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Icon(
-                currentIndex == 0 ? Icons.dynamic_feed : Icons.dynamic_feed,
-                size: 24,
-              ),
-            ),
-            label: 'Feed',
+      child: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              _navItem(0, Icons.dynamic_feed, 'FEED'),
+              _navItem(1, Icons.storefront, 'MARKET'),
+              _navItem(2, Icons.miscellaneous_services, 'SERVICES'),
+              _navItem(3, Icons.person, 'PROFILE'),
+            ],
           ),
-          BottomNavigationBarItem(
-            icon: Container(
-              padding: const EdgeInsets.all(4),
-              decoration: BoxDecoration(
-                color: currentIndex == 1 ? brandPink.withOpacity(0.1) : Colors.transparent,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Icon(
-                currentIndex == 1 ? Icons.storefront : Icons.storefront_outlined,
-                size: 24,
-              ),
+        ),
+      ),
+    );
+  }
+
+  Widget _navItem(int index, IconData icon, String label) {
+    final isActive = currentIndex == index;
+    return GestureDetector(
+      onTap: () => onTap(index),
+      behavior: HitTestBehavior.opaque,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        decoration: BoxDecoration(
+          color: isActive ? brandPink.withOpacity(0.12) : Colors.transparent,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              icon,
+              size: 20,
+              color: isActive ? brandPink : bodyColor,
             ),
-            label: 'Market',
-          ),
-          BottomNavigationBarItem(
-            icon: Container(
-              padding: const EdgeInsets.all(4),
-              decoration: BoxDecoration(
-                color: currentIndex == 2 ? brandPink.withOpacity(0.1) : Colors.transparent,
-                borderRadius: BorderRadius.circular(8),
+            if (isActive) ...[
+              const SizedBox(width: 6),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                  color: isActive ? brandPink : bodyColor,
+                  letterSpacing: 0.5,
+                ),
               ),
-              child: Icon(
-                currentIndex == 2 ? Icons.miscellaneous_services : Icons.miscellaneous_services_outlined,
-                size: 24,
-              ),
-            ),
-            label: 'Services',
-          ),
-          BottomNavigationBarItem(
-            icon: Container(
-              padding: const EdgeInsets.all(4),
-              decoration: BoxDecoration(
-                color: currentIndex == 3 ? brandPink.withOpacity(0.1) : Colors.transparent,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Icon(
-                currentIndex == 3 ? Icons.person : Icons.person_outline,
-                size: 24,
-              ),
-            ),
-            label: 'Profile',
-          ),
-        ],
+            ],
+          ],
+        ),
       ),
     );
   }

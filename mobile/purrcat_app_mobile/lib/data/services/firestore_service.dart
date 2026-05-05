@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 
 import '../models/feed_model.dart';
+import '../models/marketplace_model.dart';
 
 /// Singleton service for all Firestore + Firebase Storage operations.
 class FirestoreService {
@@ -183,6 +184,67 @@ class FirestoreService {
         .doc(postId)
         .snapshots()
         .map((doc) => doc.exists);
+  }
+
+  // ── Marketplace ─────────────────────────────────────────────────────
+
+  /// Reference to the marketplace collection.
+  CollectionReference<Map<String, dynamic>> get marketplace =>
+      _firestore.collection('marketplace');
+
+  /// Uploads a product image to Storage and creates a marketplace listing
+  /// document in Firestore.
+  Future<void> addMarketplaceListing({
+    required MarketplaceItem item,
+    required File? image,
+  }) async {
+    final user = _auth.currentUser;
+    if (user == null) throw Exception('Must be authenticated to list a product');
+
+    final docRef = marketplace.doc();
+    final listingId = docRef.id;
+
+    String imageUrl = '';
+    if (image != null) {
+      try {
+        final ref = _storage.ref('marketplace/$listingId/image.jpg');
+        await ref.putFile(image);
+        imageUrl = await ref.getDownloadURL();
+      } on FirebaseException catch (e) {
+        throw Exception('Image upload failed [${e.code}]: ${e.message}');
+      }
+    }
+
+    try {
+      await docRef.set({
+        'id': listingId,
+        'name': item.name,
+        'breed': item.breed,
+        'price': item.price,
+        'category': item.category,
+        'sellerName': item.sellerName,
+        'sellerId': user.uid,
+        'type': item.type == ListingType.pet ? 'pet' : 'product',
+        'imageUrl': imageUrl,
+        'rating': 0.0,
+        'reviewCount': 0,
+        'createdAt': FieldValue.serverTimestamp(),
+        ..._statusBadgeToMap(item.statusBadge),
+        ..._ageToMap(item.age),
+      });
+    } on FirebaseException catch (e) {
+      throw Exception('Firestore write failed [${e.code}]: ${e.message}');
+    }
+  }
+
+  Map<String, dynamic> _statusBadgeToMap(StatusBadge? badge) {
+    if (badge == null) return {};
+    return {'statusBadge': badge.name};
+  }
+
+  Map<String, dynamic> _ageToMap(String? age) {
+    if (age == null) return {};
+    return {'age': age};
   }
 
   // ── Configuration ───────────────────────────────────────────────────

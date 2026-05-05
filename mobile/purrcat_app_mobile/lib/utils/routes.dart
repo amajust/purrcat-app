@@ -9,6 +9,8 @@ import '../ui/features/feed/views/feed_screen.dart';
 import '../ui/features/marketplace/views/marketplace_screen.dart';
 import '../ui/features/feed/views/create_post_screen.dart';
 
+import '../ui/features/marketplace/views/add_product_screen.dart';
+
 final GoRouter router = GoRouter(
   initialLocation: '/splash',
   routes: [
@@ -35,6 +37,10 @@ final GoRouter router = GoRouter(
     GoRoute(
       path: '/marketplace',
       builder: (context, state) => const MarketplaceScreen(),
+    ),
+    GoRoute(
+      path: '/marketplace/add',
+      builder: (context, state) => const AddProductScreen(),
     ),
     GoRoute(
       path: '/feed/create',

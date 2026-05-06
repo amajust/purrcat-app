@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import '../../feed/views/feed_screen.dart';
 import '../../marketplace/views/marketplace_screen.dart';
 import '../../profile/views/profile_screen.dart';
+import '../../services/views/services_screen.dart';
 import '../../../../ui/shared/bottom_nav_component.dart';
 import '../../../../ui/shared/login_modal.dart';
 import '../../../../ui/core/theme.dart';
@@ -24,7 +25,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final List<Widget> _screens = [
     const FeedScreen(),
     const MarketplaceScreen(),
-    const Center(child: Text('Services Screen')),
+    const ServicesScreen(),
     const ProfileScreen(),
   ];
 

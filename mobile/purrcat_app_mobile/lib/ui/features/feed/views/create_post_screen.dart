@@ -116,6 +116,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
+      resizeToAvoidBottomInset: true,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
@@ -153,7 +154,9 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
             ),
         ],
       ),
-      body: _images.isEmpty ? _buildImagePicker() : _buildEditor(),
+      body: _images.isEmpty 
+          ? _buildImagePicker() 
+          : SingleChildScrollView(child: _buildEditor()),
     );
   }
 
@@ -177,7 +180,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                 label: 'Camera',
                 onTap: _openCamera,
               ),
-              const SizedBox(width: 16),
+              const Padding(padding: EdgeInsets.only(left: 16)),
               _ActionChip(
                 icon: Icons.photo_library,
                 label: 'Gallery',
@@ -284,16 +287,18 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
           ),
         ),
 
-        // Large preview of selected image
+        // Large preview of selected image - wrap in SizedBox with fixed height 250
         if (_images.isNotEmpty && _selectedImageIndex < _images.length)
-          Container(
+          SizedBox(
+            height: 250,
             width: double.infinity,
-            height: MediaQuery.of(context).size.width,
-            decoration: BoxDecoration(
-              color: Colors.grey[200],
-              image: DecorationImage(
-                image: FileImage(File(_images[_selectedImageIndex].path)),
-                fit: BoxFit.cover,
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.grey[200],
+                image: DecorationImage(
+                  image: FileImage(File(_images[_selectedImageIndex].path)),
+                  fit: BoxFit.cover,
+                ),
               ),
             ),
           ),

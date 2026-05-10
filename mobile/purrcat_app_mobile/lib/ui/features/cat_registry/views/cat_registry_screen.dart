@@ -235,25 +235,31 @@ class CatRegistryScreen extends StatelessWidget {
             const SizedBox(height: 4),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 // Toggle verified pedigree (Demo purposes)
-                Row(
-                  children: [
-                    const Icon(Icons.verified_user_outlined, size: 14, color: Colors.grey),
-                    const SizedBox(width: 6),
-                    Text(
-                      'Verify Pedigree Certificate (Demo Toggle)',
-                      style: TextStyle(fontSize: 11, color: Colors.grey[600]),
-                    ),
-                    const SizedBox(width: 8),
-                    Switch.adaptive(
-                      activeColor: Colors.green,
-                      value: cat.isPedigreeVerified,
-                      onChanged: (val) async {
-                        await ref.doc(cat.id).update({'isPedigreeVerified': val});
-                      },
-                    ),
-                  ],
+                Expanded(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.verified_user_outlined, size: 14, color: Colors.grey),
+                      const Padding(padding: EdgeInsets.only(left: 6)),
+                      Expanded(
+                        child: Text(
+                          'Verify Pedigree Certificate (Demo Toggle)',
+                          style: TextStyle(fontSize: 11, color: Colors.grey[600]),
+                        ),
+                      ),
+                      const Padding(padding: EdgeInsets.only(left: 8)),
+                      Switch.adaptive(
+                        activeColor: Colors.green,
+                        value: cat.isPedigreeVerified,
+                        onChanged: (val) async {
+                          await ref.doc(cat.id).update({'isPedigreeVerified': val});
+                        },
+                      ),
+                    ],
+                  ),
                 ),
                 IconButton(
                   icon: const Icon(Icons.delete_outline, size: 20, color: Colors.redAccent),

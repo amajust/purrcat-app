@@ -10,7 +10,7 @@ class FeedHeader extends StatelessWidget implements PreferredSizeWidget {
   @override
   final Size preferredSize;
 
-  FeedHeader({
+  const FeedHeader({
     super.key,
     required this.title,
     this.leading,
@@ -34,7 +34,7 @@ class FeedHeader extends StatelessWidget implements PreferredSizeWidget {
               style: const TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
-brandPink
+                color: brandPink,
               ),
             ),
           ),

@@ -16,7 +16,7 @@ class CategoryList extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 20),
         scrollDirection: Axis.horizontal,
         itemCount: serviceCategories.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 14),
+        separatorBuilder: (_, i) => const SizedBox(width: 14),
         itemBuilder: (context, index) {
           final cat = serviceCategories[index];
           return _CategoryCard(category: cat);
@@ -52,7 +52,7 @@ class _CategoryCard extends StatelessWidget {
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.7),
+                  color: Colors.white.withValues(alpha: 0.7),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(

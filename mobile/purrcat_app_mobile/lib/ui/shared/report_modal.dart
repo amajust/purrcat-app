@@ -166,7 +166,7 @@ class _ReportModalState extends State<ReportModal> {
                       const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                   decoration: BoxDecoration(
                     color: isSelected
-                        ? brandPink.withOpacity(0.1)
+                        ? brandPink.withValues(alpha: 0.1)
                         : Colors.grey.shade50,
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(

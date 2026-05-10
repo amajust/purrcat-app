@@ -66,5 +66,10 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<!-- Location permissions required by geolocator -->
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Purrfect needs your location to show nearby vets and groomers.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Purrfect needs your location to show nearby vets and groomers.</string>
 </dict>
 </plist>

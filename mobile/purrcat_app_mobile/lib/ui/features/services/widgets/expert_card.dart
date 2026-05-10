@@ -30,7 +30,7 @@ class _ExpertCardState extends State<ExpertCard> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -51,8 +51,8 @@ class _ExpertCardState extends State<ExpertCard> {
                         width: 56,
                         height: 56,
                         fit: BoxFit.cover,
-                        errorWidget: (_, __, ___) => _fallbackAvatar(),
-                        placeholder: (_, __) => Shimmer.fromColors(
+                        errorWidget: (ctx, err, stack) => _fallbackAvatar(),
+                        placeholder: (ctx, i) => Shimmer.fromColors(
                           baseColor: Colors.grey.shade200,
                           highlightColor: Colors.grey.shade100,
                           child: Container(
@@ -174,7 +174,7 @@ class _ExpertCardState extends State<ExpertCard> {
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               itemCount: expert.availableSlots.length,
-              separatorBuilder: (_, __) => const SizedBox(width: 8),
+              separatorBuilder: (_, i) => const SizedBox(width: 8),
               itemBuilder: (context, index) {
                 final slot = expert.availableSlots[index];
                 final isSelected = _selectedSlot == slot;
@@ -222,7 +222,7 @@ class _ExpertCardState extends State<ExpertCard> {
       width: 56,
       height: 56,
       decoration: BoxDecoration(
-        color: brandPink.withOpacity(0.12),
+        color: brandPink.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(15),
       ),
       child: const Icon(Icons.person, color: brandPink, size: 28),

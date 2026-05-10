@@ -309,7 +309,7 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> {
                     'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=300',
                     width: 180,
                     fit: BoxFit.contain,
-                    errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+                    errorBuilder: (ctx, err, stack) => const SizedBox.shrink(),
                   ),
                 ),
               ),
@@ -324,7 +324,7 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> {
                       style: GoogleFonts.inter(
                         fontSize: 11,
                         fontWeight: FontWeight.w700,
-                        color: Colors.white.withOpacity(0.85),
+                        color: Colors.white.withValues(alpha: 0.85),
                         letterSpacing: 1.5,
                       ),
                     ),
@@ -377,7 +377,7 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> {
           scrollDirection: Axis.horizontal,
           padding: const EdgeInsets.symmetric(horizontal: 16),
           itemCount: _categoryFilters.length,
-          separatorBuilder: (_, __) => const SizedBox(width: 8),
+          separatorBuilder: (_, i) => const SizedBox(width: 8),
           itemBuilder: (context, index) {
             final cat = _categoryFilters[index];
             final isSelected = _selectedCategory == cat.label;
@@ -488,7 +488,7 @@ class _ProductCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.06),
+            color: Colors.black.withValues(alpha: 0.06),
             blurRadius: 8,
             offset: const Offset(0, 3),
           ),
@@ -523,14 +523,14 @@ class _ProductCard extends StatelessWidget {
             CachedNetworkImage(
               imageUrl: item.imageUrl,
               fit: BoxFit.cover,
-              placeholder: (_, __) => Shimmer.fromColors(
+              placeholder: (c, i) => Shimmer.fromColors(
                 baseColor: Colors.grey.shade300,
                 highlightColor: Colors.grey.shade100,
                 child: Container(color: Colors.grey.shade300),
               ),
-              errorWidget: (_, __, ___) => Container(
+              errorWidget: (c, e, s) => Container(
                 color: Colors.grey.shade200,
-                child: Icon(Icons.pets, size: 32, color: brandPink.withOpacity(0.4)),
+                child: Icon(Icons.pets, size: 32, color: brandPink.withValues(alpha: 0.4)),
               ),
             ),
             // Report button — top left

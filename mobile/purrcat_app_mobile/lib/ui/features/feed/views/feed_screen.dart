@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:go_router/go_router.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:async';
 
 import '../../../../data/models/feed_model.dart';
@@ -57,20 +55,6 @@ class _FeedScreenState extends State<FeedScreen> {
       completer.complete();
     });
     return completer.future;
-  }
-
-  void _onFabPressed() {
-    if (FirebaseAuth.instance.currentUser == null) {
-      showModalBottomSheet(
-        context: context,
-        isScrollControlled: true,
-        builder: (_) => LoginModal(
-          onLoginSuccess: () => context.push('/feed/create'),
-        ),
-      );
-    } else {
-      context.push('/feed/create');
-    }
   }
 
   @override

@@ -7,12 +7,16 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+
 import '../../data/models/feed_model.dart';
 import '../../data/services/firestore_service.dart';
+import '../../data/providers/cat_providers.dart';
 import '../core/theme.dart';
 import 'report_modal.dart';
 
-class PostCard extends StatefulWidget {
+class PostCard extends ConsumerStatefulWidget {
   final Post post;
   final VoidCallback? onLoginRequired;
 
@@ -23,10 +27,10 @@ class PostCard extends StatefulWidget {
   });
 
   @override
-  State<PostCard> createState() => _PostCardState();
+  ConsumerState<PostCard> createState() => _PostCardState();
 }
 
-class _PostCardState extends State<PostCard> {
+class _PostCardState extends ConsumerState<PostCard> {
   StreamSubscription<bool>? _likeSub;
   StreamSubscription<bool>? _bookmarkSub;
   StreamSubscription<DocumentSnapshot>? _postDocSub;
@@ -258,6 +262,10 @@ class _PostCardState extends State<PostCard> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                if (post.taggedCatIds.isNotEmpty) ...[
+                  _buildTaggedCatsBar(context),
+                  const SizedBox(height: 8),
+                ],
                 Text(
                   '$_likeCount Likes',
                   style: GoogleFonts.poppins(
@@ -287,6 +295,82 @@ class _PostCardState extends State<PostCard> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildTaggedCatsBar(BuildContext context) {
+    return Wrap(
+      spacing: 6,
+      runSpacing: 4,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      children: [
+        Text(
+          'Featuring: ',
+          style: GoogleFonts.poppins(
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            color: Colors.grey[600],
+          ),
+        ),
+        ...widget.post.taggedCatIds.map((catId) {
+          return Consumer(
+            builder: (context, ref, child) {
+              final catAsync = ref.watch(catDetailProvider(catId));
+              return catAsync.when(
+                data: (cat) {
+                  if (cat == null) return const SizedBox.shrink();
+                  return GestureDetector(
+                    onTap: () {
+                      context.push('/cat-detail/$catId');
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: brandPink.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: brandPink.withOpacity(0.3)),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (cat.imageUrl.isNotEmpty) ...[
+                            CircleAvatar(
+                              radius: 8,
+                              backgroundImage: NetworkImage(cat.imageUrl),
+                            ),
+                            const SizedBox(width: 4),
+                          ],
+                          Text(
+                            cat.name,
+                            style: GoogleFonts.poppins(
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
+                              color: brandPink,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+                loading: () => Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[100],
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const SizedBox(
+                    width: 10,
+                    height: 10,
+                    child: CircularProgressIndicator(strokeWidth: 1.5, color: brandPink),
+                  ),
+                ),
+                error: (_, __) => const SizedBox.shrink(),
+              );
+            },
+          );
+        }).toList(),
+      ],
     );
   }
 }

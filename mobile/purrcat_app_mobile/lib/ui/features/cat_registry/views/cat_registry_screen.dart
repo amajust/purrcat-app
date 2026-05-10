@@ -131,104 +131,108 @@ class CatRegistryScreen extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Cat Profile Image
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: cat.imageUrl.isNotEmpty
-                      ? Image.network(
-                          cat.imageUrl,
-                          width: 80,
-                          height: 80,
-                          fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => _buildFallbackImage(),
-                        )
-                      : _buildFallbackImage(),
-                ),
-                const SizedBox(width: 16),
+            GestureDetector(
+              onTap: () => context.push('/cat-detail/${cat.id}'),
+              behavior: HitTestBehavior.opaque,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Cat Profile Image
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: cat.imageUrl.isNotEmpty
+                        ? Image.network(
+                            cat.imageUrl,
+                            width: 80,
+                            height: 80,
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, __, ___) => _buildFallbackImage(),
+                          )
+                        : _buildFallbackImage(),
+                  ),
+                  const SizedBox(width: 16),
 
-                // Details
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              cat.name,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 18,
-                                color: headingColor,
-                              ),
-                            ),
-                          ),
-                          // Tier 3 Verified Pedigree Green Checkmark Badge!
-                          if (cat.isPedigreeVerified)
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFE8F5E9),
-                                borderRadius: BorderRadius.circular(20),
-                                border: Border.all(color: const Color(0xFFA5D6A7)),
-                              ),
-                              child: const Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(Icons.verified, size: 14, color: Colors.green),
-                                  SizedBox(width: 4),
-                                  Text(
-                                    'Verified Pedigree',
-                                    style: TextStyle(
-                                      color: Colors.green,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 10,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            )
-                          else
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                              decoration: BoxDecoration(
-                                color: Colors.grey[100],
-                                borderRadius: BorderRadius.circular(20),
-                              ),
+                  // Details
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(
                               child: Text(
-                                'Pending cert',
-                                style: TextStyle(
-                                  color: Colors.grey[600],
-                                  fontSize: 10,
+                                cat.name,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18,
+                                  color: headingColor,
                                 ),
                               ),
                             ),
-                        ],
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        cat.breed,
-                        style: const TextStyle(fontWeight: FontWeight.w600, color: brandPink, fontSize: 13),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        'Age: ${cat.age}',
-                        style: const TextStyle(color: bodyColor, fontSize: 12),
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        cat.description,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(color: bodyColor.withOpacity(0.9), fontSize: 13),
-                      ),
-                    ],
+                            // Tier 3 Verified Pedigree Green Checkmark Badge!
+                            if (cat.isPedigreeVerified)
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFE8F5E9),
+                                  borderRadius: BorderRadius.circular(20),
+                                  border: Border.all(color: const Color(0xFFA5D6A7)),
+                                ),
+                                child: const Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(Icons.verified, size: 14, color: Colors.green),
+                                    SizedBox(width: 4),
+                                    Text(
+                                      'Verified Pedigree',
+                                      style: TextStyle(
+                                        color: Colors.green,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 10,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              )
+                            else
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: Colors.grey[100],
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: Text(
+                                  'Pending cert',
+                                  style: TextStyle(
+                                    color: Colors.grey[600],
+                                    fontSize: 10,
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          cat.breed,
+                          style: const TextStyle(fontWeight: FontWeight.w600, color: brandPink, fontSize: 13),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          'Age: ${cat.age}',
+                          style: const TextStyle(color: bodyColor, fontSize: 12),
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          cat.description,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(color: bodyColor.withOpacity(0.9), fontSize: 13),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
             const SizedBox(height: 12),
             const Divider(),

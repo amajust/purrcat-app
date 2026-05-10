@@ -14,6 +14,7 @@ import '../ui/features/add_service/views/add_service_screen.dart';
 import '../ui/features/profile/views/verification_center_screen.dart';
 import '../ui/features/cat_registry/views/cat_registry_screen.dart';
 import '../ui/features/cat_registry/views/add_cat_screen.dart';
+import '../ui/features/cat_registry/views/cat_detail_screen.dart';
 
 final GoRouter router = GoRouter(
   initialLocation: '/splash',
@@ -65,6 +66,13 @@ final GoRouter router = GoRouter(
     GoRoute(
       path: '/cats/add',
       builder: (context, state) => const AddCatScreen(),
+    ),
+    GoRoute(
+      path: '/cat-detail/:catId',
+      builder: (context, state) {
+        final catId = state.pathParameters['catId'] ?? '';
+        return CatDetailScreen(catId: catId);
+      },
     ),
   ],
 );

@@ -11,6 +11,14 @@ class CatModel {
   final String pedigreeCertUrl;
   final String ownerId;
   final DateTime createdAt;
+  
+  // Extended lineage & detailed attributes
+  final String gender;
+  final String category;
+  final String sireId;
+  final String sireName;
+  final String damId;
+  final String damName;
 
   CatModel({
     required this.id,
@@ -23,6 +31,12 @@ class CatModel {
     required this.pedigreeCertUrl,
     required this.ownerId,
     required this.createdAt,
+    this.gender = 'Unknown',
+    this.category = 'Pedigree',
+    this.sireId = '',
+    this.sireName = 'Unknown Sire',
+    this.damId = '',
+    this.damName = 'Unknown Dam',
   });
 
   factory CatModel.fromFirestore(String id, Map<String, dynamic> data) {
@@ -37,6 +51,12 @@ class CatModel {
       pedigreeCertUrl: data['pedigreeCertUrl'] ?? '',
       ownerId: data['ownerId'] ?? '',
       createdAt: (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
+      gender: data['gender'] ?? 'Unknown',
+      category: data['category'] ?? 'Pedigree',
+      sireId: data['sireId'] ?? '',
+      sireName: data['sireName'] ?? 'Unknown Sire',
+      damId: data['damId'] ?? '',
+      damName: data['damName'] ?? 'Unknown Dam',
     );
   }
 
@@ -52,6 +72,12 @@ class CatModel {
       'pedigreeCertUrl': pedigreeCertUrl,
       'ownerId': ownerId,
       'createdAt': Timestamp.fromDate(createdAt),
+      'gender': gender,
+      'category': category,
+      'sireId': sireId,
+      'sireName': sireName,
+      'damId': damId,
+      'damName': damName,
     };
   }
 }

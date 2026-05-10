@@ -21,6 +21,13 @@ class _AddCatScreenState extends State<AddCatScreen> {
   final _ageCtrl = TextEditingController();
   final _descCtrl = TextEditingController();
 
+  String _selectedGender = 'Male';
+  final _categoryCtrl = TextEditingController();
+  final _sireNameCtrl = TextEditingController();
+  final _sireIdCtrl = TextEditingController();
+  final _damNameCtrl = TextEditingController();
+  final _damIdCtrl = TextEditingController();
+
   File? _profileImageFile;
   File? _pedigreeCertFile;
   bool _isSaving = false;
@@ -31,6 +38,11 @@ class _AddCatScreenState extends State<AddCatScreen> {
     _breedCtrl.dispose();
     _ageCtrl.dispose();
     _descCtrl.dispose();
+    _categoryCtrl.dispose();
+    _sireNameCtrl.dispose();
+    _sireIdCtrl.dispose();
+    _damNameCtrl.dispose();
+    _damIdCtrl.dispose();
     super.dispose();
   }
 
@@ -88,6 +100,12 @@ class _AddCatScreenState extends State<AddCatScreen> {
         'isPedigreeVerified': false, // Initially unverified until admin approves
         'ownerId': user.uid,
         'createdAt': FieldValue.serverTimestamp(),
+        'gender': _selectedGender,
+        'category': _categoryCtrl.text.trim().isEmpty ? 'Pedigree' : _categoryCtrl.text.trim(),
+        'sireId': _sireIdCtrl.text.trim(),
+        'sireName': _sireNameCtrl.text.trim().isEmpty ? 'Unknown Sire' : _sireNameCtrl.text.trim(),
+        'damId': _damIdCtrl.text.trim(),
+        'damName': _damNameCtrl.text.trim().isEmpty ? 'Unknown Dam' : _damNameCtrl.text.trim(),
       });
 
       if (mounted) {
@@ -208,6 +226,99 @@ class _AddCatScreenState extends State<AddCatScreen> {
                 maxLines: 3,
                 decoration: const InputDecoration(
                   hintText: 'Describe their personality, color, patterns...',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              const Text('Gender', style: TextStyle(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
+              DropdownButtonFormField<String>(
+                value: _selectedGender,
+                items: const [
+                  DropdownMenuItem(value: 'Male', child: Text('Male')),
+                  DropdownMenuItem(value: 'Female', child: Text('Female')),
+                  DropdownMenuItem(value: 'Unknown', child: Text('Unknown')),
+                ],
+                onChanged: (val) {
+                  if (val != null) {
+                    setState(() {
+                      _selectedGender = val;
+                    });
+                  }
+                },
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              const Text('Category', style: TextStyle(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
+              TextFormField(
+                controller: _categoryCtrl,
+                decoration: const InputDecoration(
+                  hintText: 'e.g. Shorthair, Longhair, Premium Pedigree',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 24),
+
+              // Lineage (Silsilah) Section Header
+              const Text(
+                'Lineage Information (Silsilah)',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                  color: headingColor,
+                ),
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                'Add parent details. Linking registered cat IDs will make them clickable in the Lineage tree!',
+                style: TextStyle(color: Colors.grey, fontSize: 12),
+              ),
+              const SizedBox(height: 16),
+
+              // Sire (Father) Information
+              const Text('Sire (Father) Name', style: TextStyle(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
+              TextFormField(
+                controller: _sireNameCtrl,
+                decoration: const InputDecoration(
+                  hintText: 'e.g. Grand Champion Romeo',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 12),
+              const Text('Sire (Father) Cat ID (Optional)', style: TextStyle(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
+              TextFormField(
+                controller: _sireIdCtrl,
+                decoration: const InputDecoration(
+                  hintText: 'Enter registered cat ID to link',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 20),
+
+              // Dam (Mother) Information
+              const Text('Dam (Mother) Name', style: TextStyle(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
+              TextFormField(
+                controller: _damNameCtrl,
+                decoration: const InputDecoration(
+                  hintText: 'e.g. Duchess Juliet',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 12),
+              const Text('Dam (Mother) Cat ID (Optional)', style: TextStyle(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
+              TextFormField(
+                controller: _damIdCtrl,
+                decoration: const InputDecoration(
+                  hintText: 'Enter registered cat ID to link',
                   border: OutlineInputBorder(),
                 ),
               ),

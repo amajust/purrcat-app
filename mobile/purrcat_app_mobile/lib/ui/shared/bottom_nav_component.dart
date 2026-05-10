@@ -33,7 +33,7 @@ class BottomNavComponent extends StatelessWidget {
             children: [
               _navItem(0, Icons.dynamic_feed, 'FEED'),
               _navItem(1, Icons.storefront, 'MARKET'),
-              _navItem(2, Icons.miscellaneous_services, 'SERVICES'),
+              _navItem(2, Icons.pets, 'MY CATS'),
               _navItem(3, Icons.person, 'PROFILE'),
             ],
           ),

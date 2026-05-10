@@ -88,7 +88,7 @@ class CatRegistryScreen extends StatelessWidget {
             ),
             const SizedBox(height: 24),
             const Text(
-              'Showcase Your Cats!',
+              'Welcome to the Digital Cattery',
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: headingColor),
             ),
             const SizedBox(height: 8),
@@ -166,24 +166,24 @@ class CatRegistryScreen extends StatelessWidget {
                               ),
                             ),
                           ),
-                          // Tier 3 Verified Pedigree Ribbon Badge!
+                          // Tier 3 Verified Pedigree Green Checkmark Badge!
                           if (cat.isPedigreeVerified)
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                               decoration: BoxDecoration(
-                                color: const Color(0xFFFDF0F5),
+                                color: const Color(0xFFE8F5E9),
                                 borderRadius: BorderRadius.circular(20),
-                                border: Border.all(color: const Color(0xFFF8BBD0)),
+                                border: Border.all(color: const Color(0xFFA5D6A7)),
                               ),
-                              child: Row(
+                              child: const Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  Icon(Icons.workspace_premium, size: 14, color: Colors.pink[400]),
-                                  const SizedBox(width: 4),
+                                  Icon(Icons.verified, size: 14, color: Colors.green),
+                                  SizedBox(width: 4),
                                   Text(
-                                    'Pedigree',
+                                    'Verified Pedigree',
                                     style: TextStyle(
-                                      color: Colors.pink[400],
+                                      color: Colors.green,
                                       fontWeight: FontWeight.bold,
                                       fontSize: 10,
                                     ),
@@ -247,7 +247,7 @@ class CatRegistryScreen extends StatelessWidget {
                     ),
                     const SizedBox(width: 8),
                     Switch.adaptive(
-                      activeColor: Colors.pink[400],
+                      activeColor: Colors.green,
                       value: cat.isPedigreeVerified,
                       onChanged: (val) async {
                         await ref.doc(cat.id).update({'isPedigreeVerified': val});

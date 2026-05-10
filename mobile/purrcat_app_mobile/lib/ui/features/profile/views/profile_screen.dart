@@ -352,7 +352,7 @@ class ProfileScreen extends StatelessWidget {
                                 child: Container(
                                   padding: const EdgeInsets.all(2),
                                   decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
-                                  child: Icon(Icons.workspace_premium, size: 14, color: Colors.pink[400]),
+                                  child: const Icon(Icons.verified, size: 14, color: Colors.green),
                                 ),
                               ),
                           ],

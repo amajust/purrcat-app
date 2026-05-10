@@ -71,7 +71,8 @@ final GoRouter router = GoRouter(
       path: '/cat-detail/:catId',
       builder: (context, state) {
         final catId = state.pathParameters['catId'] ?? '';
-        return CatDetailScreen(catId: catId);
+        final ownerId = state.uri.queryParameters['ownerId'];
+        return CatDetailScreen(catId: catId, ownerId: ownerId);
       },
     ),
   ],

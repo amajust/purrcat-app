@@ -298,37 +298,52 @@ class _PostCardState extends ConsumerState<PostCard> {
     );
   }
 
-  Future<List<CatModel>> _fetchTaggedCats(List<String> catIds) async {
+  Future<List<CatModel>> _fetchTaggedCats(List<String> catIds, String ownerId) async {
     final List<CatModel> resolvedCats = [];
     for (final id in catIds) {
       try {
-        final doc = await FirebaseFirestore.instance.collection('cats').doc(id).get();
-        if (doc.exists && doc.data() != null) {
-          resolvedCats.add(CatModel.fromFirestore(doc.id, doc.data()!));
-        } else {
-          // Fallback: search via collectionGroup in case of un-migrated legacy documents
-          final groupSnapshot = await FirebaseFirestore.instance
-              .collectionGroup('cats')
-              .where('id', isEqualTo: id)
+        if (ownerId.isNotEmpty) {
+          final doc = await FirebaseFirestore.instance
+              .collection('users')
+              .doc(ownerId)
+              .collection('cats')
+              .doc(id)
               .get();
-          if (groupSnapshot.docs.isNotEmpty) {
-            final firstDoc = groupSnapshot.docs.first;
-            final cat = CatModel.fromFirestore(firstDoc.id, firstDoc.data());
-            resolvedCats.add(cat);
-            // Auto-migrate to the root collection so future fetches are instant and index-free
-            await FirebaseFirestore.instance.collection('cats').doc(id).set(firstDoc.data());
+          if (doc.exists && doc.data() != null) {
+            resolvedCats.add(CatModel.fromFirestore(doc.id, doc.data()!));
+            continue;
           }
         }
+
+        // Fallback: Check flat root cats collection
+        final rootDoc = await FirebaseFirestore.instance.collection('cats').doc(id).get();
+        if (rootDoc.exists && rootDoc.data() != null) {
+          resolvedCats.add(CatModel.fromFirestore(rootDoc.id, rootDoc.data()!));
+          continue;
+        }
+
+        // Fallback: Check collectionGroup query
+        final groupSnapshot = await FirebaseFirestore.instance
+            .collectionGroup('cats')
+            .where('id', isEqualTo: id)
+            .get();
+        if (groupSnapshot.docs.isNotEmpty) {
+          final firstDoc = groupSnapshot.docs.first;
+          final cat = CatModel.fromFirestore(firstDoc.id, firstDoc.data());
+          resolvedCats.add(cat);
+          await FirebaseFirestore.instance.collection('cats').doc(id).set(firstDoc.data());
+        }
       } catch (e) {
-        print('Error resolving tagged cat $id (index might be missing): $e');
+        print('Error resolving tagged cat $id. If failed-precondition, click Firebase Log link to build Index: $e');
       }
     }
     return resolvedCats;
   }
 
   Widget _buildTaggedCatsBar(BuildContext context) {
+    final ownerId = widget.post.userId;
     return FutureBuilder<List<CatModel>>(
-      future: _fetchTaggedCats(widget.post.taggedCatIds),
+      future: _fetchTaggedCats(widget.post.taggedCatIds, ownerId),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Wrap(
@@ -362,7 +377,7 @@ class _PostCardState extends ConsumerState<PostCard> {
 
         final cats = snapshot.data ?? [];
         if (cats.isEmpty) {
-          return const SizedBox.shrink(); // Hide the entire row if no cats could be resolved
+          return const SizedBox.shrink();
         }
 
         return Wrap(
@@ -381,7 +396,7 @@ class _PostCardState extends ConsumerState<PostCard> {
             ...cats.map((cat) {
               return GestureDetector(
                 onTap: () {
-                  context.push('/cat-detail/${cat.id}');
+                  context.push('/cat-detail/${cat.id}?ownerId=$ownerId');
                 },
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -408,11 +423,12 @@ class _PostCardState extends ConsumerState<PostCard> {
                           color: brandPink,
                         ),
                       ),
+                      const SizedBox(width: 4),
                     ],
                   ),
                 ),
               );
-            }).toList(),
+            }),
           ],
         );
       },

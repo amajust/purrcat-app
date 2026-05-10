@@ -20,7 +20,46 @@ final userCatsProvider = StreamProvider<List<CatModel>>((ref) {
 });
 
 /// Real-time stream of a specific cat's details using direct root-collection snapshots and fallback migration.
-final catDetailProvider = StreamProvider.family<CatModel?, String>((ref, catId) {
+final catDetailProvider = StreamProvider.family<CatModel?, String>((ref, arg) {
+  final parts = arg.split('|');
+  final catId = parts.last;
+  final ownerId = parts.length > 1 ? parts.first : null;
+
+  if (ownerId != null && ownerId.isNotEmpty) {
+    return FirebaseFirestore.instance
+        .collection('users')
+        .doc(ownerId)
+        .collection('cats')
+        .doc(catId)
+        .snapshots()
+        .asyncMap((snapshot) async {
+          if (snapshot.exists && snapshot.data() != null) {
+            return CatModel.fromFirestore(snapshot.id, snapshot.data()!);
+          }
+          
+          // Fallback to root cats collection
+          final flatDoc = await FirebaseFirestore.instance.collection('cats').doc(catId).get();
+          if (flatDoc.exists && flatDoc.data() != null) {
+            return CatModel.fromFirestore(flatDoc.id, flatDoc.data()!);
+          }
+
+          // Fallback to collectionGroup
+          try {
+            final groupSnapshot = await FirebaseFirestore.instance
+                .collectionGroup('cats')
+                .where('id', isEqualTo: catId)
+                .get();
+            if (groupSnapshot.docs.isNotEmpty) {
+              final doc = groupSnapshot.docs.first;
+              return CatModel.fromFirestore(doc.id, doc.data());
+            }
+          } catch (e) {
+            print('Fallback collectionGroup query failed: $e');
+          }
+          return null;
+        });
+  }
+
   return FirebaseFirestore.instance
       .collection('cats')
       .doc(catId)

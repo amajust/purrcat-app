@@ -11,15 +11,17 @@ import '../../../../ui/shared/post_card.dart';
 
 class CatDetailScreen extends ConsumerWidget {
   final String catId;
+  final String? ownerId;
 
   const CatDetailScreen({
     super.key,
     required this.catId,
+    this.ownerId,
   });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final catAsync = ref.watch(catDetailProvider(catId));
+    final catAsync = ref.watch(catDetailProvider(ownerId != null && ownerId!.isNotEmpty ? "$ownerId|$catId" : catId));
 
     return Scaffold(
       backgroundColor: backgroundColor,

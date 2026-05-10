@@ -90,6 +90,38 @@ class ProfileScreen extends StatelessWidget {
               value: user.uid,
             ),
             const SizedBox(height: 32),
+            // My Business section
+            const Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                'My Business',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: headingColor,
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: () => context.push('/services/add'),
+                icon: const Icon(Icons.add_business, color: Colors.white),
+                label: const Text(
+                  'List Your Service',
+                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: brandPink,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 32),
             // Logout button
             SizedBox(
               width: double.infinity,

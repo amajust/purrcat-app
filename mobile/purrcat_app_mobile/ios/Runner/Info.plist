@@ -71,5 +71,10 @@
 	<string>Purrfect needs your location to show nearby vets and groomers.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>Purrfect needs your location to show nearby vets and groomers.</string>
+	<!-- Camera and Photo Library permissions -->
+	<key>NSCameraUsageDescription</key>
+	<string>Purrfect needs access to your camera to take photos of your identity documents.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Purrfect needs access to your photo library to select your identity documents.</string>
 </dict>
 </plist>

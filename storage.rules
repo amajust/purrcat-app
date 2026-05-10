@@ -1,0 +1,26 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Temporary basic admin check - in production use Custom Claims
+    function isAdmin() {
+      return isAuthenticated() && firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    match /verifications/{userId}/{allPaths=**} {
+      // User can upload their own verification docs
+      allow write: if isAuthenticated() && request.auth.uid == userId;
+      // Only admin can view them
+      allow read: if isAdmin();
+    }
+    
+    // Default deny
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

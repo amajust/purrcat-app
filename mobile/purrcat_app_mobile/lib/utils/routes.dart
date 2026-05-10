@@ -11,6 +11,9 @@ import '../ui/features/feed/views/create_post_screen.dart';
 
 import '../ui/features/marketplace/views/add_product_screen.dart';
 import '../ui/features/add_service/views/add_service_screen.dart';
+import '../ui/features/profile/views/verification_center_screen.dart';
+import '../ui/features/cat_registry/views/cat_registry_screen.dart';
+import '../ui/features/cat_registry/views/add_cat_screen.dart';
 
 final GoRouter router = GoRouter(
   initialLocation: '/splash',
@@ -50,6 +53,18 @@ final GoRouter router = GoRouter(
     GoRoute(
       path: '/services/add',
       builder: (context, state) => const AddServiceScreen(),
+    ),
+    GoRoute(
+      path: '/profile/verifications',
+      builder: (context, state) => const VerificationCenterScreen(),
+    ),
+    GoRoute(
+      path: '/cats',
+      builder: (context, state) => const CatRegistryScreen(),
+    ),
+    GoRoute(
+      path: '/cats/add',
+      builder: (context, state) => const AddCatScreen(),
     ),
   ],
 );

@@ -74,7 +74,6 @@ class FirestoreService {
         .orderBy('createdAt', descending: true)
         .snapshots()
         .map((snapshot) {
-      final currentUserId = _auth.currentUser?.uid;
       return snapshot.docs.map((doc) {
         final data = doc.data();
         // Also check the likes subcollection for the current user.

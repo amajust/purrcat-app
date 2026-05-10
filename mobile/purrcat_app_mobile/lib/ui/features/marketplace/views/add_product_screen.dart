@@ -313,7 +313,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
 
   Widget _buildCategoryDropdown() {
     return DropdownButtonFormField<String>(
-      value: _category,
+      initialValue: _category,
       decoration: InputDecoration(
         hintText: 'Category',
         prefixIcon: const Icon(Icons.category, color: bodyColor, size: 20),
@@ -334,7 +334,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
 
   Widget _buildStatusBadgeDropdown() {
     return DropdownButtonFormField<StatusBadge?>(
-      value: _statusBadge,
+      initialValue: _statusBadge,
       decoration: InputDecoration(
         hintText: 'Status Badge (optional)',
         prefixIcon: const Icon(Icons.verified, color: bodyColor, size: 20),

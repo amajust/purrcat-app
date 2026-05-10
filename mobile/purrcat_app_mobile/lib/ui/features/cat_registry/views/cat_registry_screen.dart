@@ -260,6 +260,10 @@ class CatRegistryScreen extends StatelessWidget {
                         value: cat.isPedigreeVerified,
                         onChanged: (val) async {
                           await ref.doc(cat.id).update({'isPedigreeVerified': val});
+                          await FirebaseFirestore.instance
+                              .collection('cats')
+                              .doc(cat.id)
+                              .update({'isPedigreeVerified': val});
                         },
                       ),
                     ],
@@ -284,6 +288,10 @@ class CatRegistryScreen extends StatelessWidget {
                     );
                     if (confirm == true) {
                       await ref.doc(cat.id).delete();
+                      await FirebaseFirestore.instance
+                          .collection('cats')
+                          .doc(cat.id)
+                          .delete();
                     }
                   },
                 ),

@@ -19,16 +19,37 @@ final userCatsProvider = StreamProvider<List<CatModel>>((ref) {
           .toList());
 });
 
-/// Real-time stream of a specific cat's details using collectionGroup.
+/// Real-time stream of a specific cat's details using direct root-collection snapshots and fallback migration.
 final catDetailProvider = StreamProvider.family<CatModel?, String>((ref, catId) {
   return FirebaseFirestore.instance
-      .collectionGroup('cats')
-      .where('id', isEqualTo: catId)
+      .collection('cats')
+      .doc(catId)
       .snapshots()
-      .map((snapshot) {
-        if (snapshot.docs.isEmpty) return null;
-        final doc = snapshot.docs.first;
-        return CatModel.fromFirestore(doc.id, doc.data());
+      .asyncMap((snapshot) async {
+        if (snapshot.exists && snapshot.data() != null) {
+          return CatModel.fromFirestore(snapshot.id, snapshot.data()!);
+        }
+
+        // Fallback: If not found in root 'cats' collection, try collectionGroup query.
+        try {
+          final groupSnapshot = await FirebaseFirestore.instance
+              .collectionGroup('cats')
+              .where('id', isEqualTo: catId)
+              .get();
+
+          if (groupSnapshot.docs.isNotEmpty) {
+            final doc = groupSnapshot.docs.first;
+            final data = doc.data();
+
+            // Auto-migrate to root collection so future fetches are instant and index-free
+            await FirebaseFirestore.instance.collection('cats').doc(catId).set(data);
+
+            return CatModel.fromFirestore(doc.id, data);
+          }
+        } catch (e) {
+          print('Root fetch returned null, and fallback collectionGroup query failed (index might be missing): $e');
+        }
+        return null;
       });
 });
 

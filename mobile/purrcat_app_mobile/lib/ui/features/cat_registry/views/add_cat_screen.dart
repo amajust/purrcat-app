@@ -83,13 +83,8 @@ class _AddCatScreenState extends State<AddCatScreen> {
         pedigreeUrl = await certRef.getDownloadURL();
       }
 
-      // 3. Save to Firestore under users/{uid}/cats
-      await FirebaseFirestore.instance
-          .collection('users')
-          .doc(user.uid)
-          .collection('cats')
-          .doc(docId)
-          .set({
+      // 3. Save to Firestore under users/{uid}/cats and root 'cats' collection
+      final catData = {
         'id': docId,
         'name': _nameCtrl.text.trim(),
         'breed': _breedCtrl.text.trim(),
@@ -106,7 +101,19 @@ class _AddCatScreenState extends State<AddCatScreen> {
         'sireName': _sireNameCtrl.text.trim().isEmpty ? 'Unknown Sire' : _sireNameCtrl.text.trim(),
         'damId': _damIdCtrl.text.trim(),
         'damName': _damNameCtrl.text.trim().isEmpty ? 'Unknown Dam' : _damNameCtrl.text.trim(),
-      });
+      };
+
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .collection('cats')
+          .doc(docId)
+          .set(catData);
+
+      await FirebaseFirestore.instance
+          .collection('cats')
+          .doc(docId)
+          .set(catData);
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

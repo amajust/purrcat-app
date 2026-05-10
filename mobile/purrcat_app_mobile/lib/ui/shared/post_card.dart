@@ -7,12 +7,16 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+
 import '../../data/models/feed_model.dart';
+import '../../data/models/cat_model.dart';
 import '../../data/services/firestore_service.dart';
 import '../core/theme.dart';
 import 'report_modal.dart';
 
-class PostCard extends StatefulWidget {
+class PostCard extends ConsumerStatefulWidget {
   final Post post;
   final VoidCallback? onLoginRequired;
 
@@ -23,10 +27,10 @@ class PostCard extends StatefulWidget {
   });
 
   @override
-  State<PostCard> createState() => _PostCardState();
+  ConsumerState<PostCard> createState() => _PostCardState();
 }
 
-class _PostCardState extends State<PostCard> {
+class _PostCardState extends ConsumerState<PostCard> {
   StreamSubscription<bool>? _likeSub;
   StreamSubscription<bool>? _bookmarkSub;
   StreamSubscription<DocumentSnapshot>? _postDocSub;
@@ -258,6 +262,10 @@ class _PostCardState extends State<PostCard> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                if (post.taggedCatIds.isNotEmpty) ...[
+                  _buildTaggedCatsBar(context),
+                  const SizedBox(height: 8),
+                ],
                 Text(
                   '$_likeCount Likes',
                   style: GoogleFonts.poppins(
@@ -287,6 +295,143 @@ class _PostCardState extends State<PostCard> {
           ),
         ],
       ),
+    );
+  }
+
+  Future<List<CatModel>> _fetchTaggedCats(List<String> catIds, String ownerId) async {
+    final List<CatModel> resolvedCats = [];
+    for (final id in catIds) {
+      try {
+        if (ownerId.isNotEmpty) {
+          final doc = await FirebaseFirestore.instance
+              .collection('users')
+              .doc(ownerId)
+              .collection('cats')
+              .doc(id)
+              .get();
+          if (doc.exists && doc.data() != null) {
+            resolvedCats.add(CatModel.fromFirestore(doc.id, doc.data()!));
+            continue;
+          }
+        }
+
+        // Fallback: Check flat root cats collection
+        final rootDoc = await FirebaseFirestore.instance.collection('cats').doc(id).get();
+        if (rootDoc.exists && rootDoc.data() != null) {
+          resolvedCats.add(CatModel.fromFirestore(rootDoc.id, rootDoc.data()!));
+          continue;
+        }
+
+        // Fallback: Check collectionGroup query
+        final groupSnapshot = await FirebaseFirestore.instance
+            .collectionGroup('cats')
+            .where('id', isEqualTo: id)
+            .get();
+        if (groupSnapshot.docs.isNotEmpty) {
+          final firstDoc = groupSnapshot.docs.first;
+          final cat = CatModel.fromFirestore(firstDoc.id, firstDoc.data());
+          resolvedCats.add(cat);
+          await FirebaseFirestore.instance.collection('cats').doc(id).set(firstDoc.data());
+        }
+      } catch (e) {
+        print('Error resolving tagged cat $id. If failed-precondition, click Firebase Log link to build Index: $e');
+      }
+    }
+    return resolvedCats;
+  }
+
+  Widget _buildTaggedCatsBar(BuildContext context) {
+    final ownerId = widget.post.userId;
+    return FutureBuilder<List<CatModel>>(
+      future: _fetchTaggedCats(widget.post.taggedCatIds, ownerId),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Wrap(
+            spacing: 6,
+            runSpacing: 4,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              Text(
+                'Featuring: ',
+                style: GoogleFonts.poppins(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.grey[600],
+                ),
+              ),
+              ...widget.post.taggedCatIds.map((_) => Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: Colors.grey[100],
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const SizedBox(
+                  width: 10,
+                  height: 10,
+                  child: CircularProgressIndicator(strokeWidth: 1.5, color: brandPink),
+                ),
+              )),
+            ],
+          );
+        }
+
+        final cats = snapshot.data ?? [];
+        if (cats.isEmpty) {
+          return const SizedBox.shrink();
+        }
+
+        return Wrap(
+          spacing: 6,
+          runSpacing: 4,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          children: [
+            Text(
+              'Featuring: ',
+              style: GoogleFonts.poppins(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: Colors.grey[600],
+              ),
+            ),
+            ...cats.map((cat) {
+              return GestureDetector(
+                onTap: () {
+                  context.push('/cat-detail/${cat.id}?ownerId=$ownerId');
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: brandPink.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: brandPink.withOpacity(0.3)),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (cat.imageUrl.isNotEmpty) ...[
+                        CircleAvatar(
+                          radius: 8,
+                          backgroundImage: NetworkImage(cat.imageUrl),
+                        ),
+                        const SizedBox(width: 4),
+                      ],
+                      Text(
+                        '@${cat.name}',
+                        style: GoogleFonts.poppins(
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          color: brandPink,
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                    ],
+                  ),
+                ),
+              );
+            }),
+          ],
+        );
+      },
     );
   }
 }

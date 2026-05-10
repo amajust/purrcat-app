@@ -4,19 +4,22 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:go_router/go_router.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../data/services/firestore_service.dart';
 import '../../../../data/models/feed_model.dart';
+import '../../../../data/providers/cat_providers.dart';
 import '../../../../ui/core/theme.dart';
 
-class CreatePostScreen extends StatefulWidget {
+class CreatePostScreen extends ConsumerStatefulWidget {
   const CreatePostScreen({super.key});
 
   @override
-  State<CreatePostScreen> createState() => _CreatePostScreenState();
+  ConsumerState<CreatePostScreen> createState() => _CreatePostScreenState();
 }
 
-class _CreatePostScreenState extends State<CreatePostScreen> {
+class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
+  final List<String> _selectedCatIds = [];
   final List<XFile> _images = [];
   final TextEditingController _captionController = TextEditingController();
   final ImagePicker _picker = ImagePicker();
@@ -90,6 +93,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
         userName: user.displayName ?? 'User',
         userAvatar: user.photoURL ?? '',
         content: _captionController.text.trim(),
+        taggedCatIds: _selectedCatIds,
         createdAt: DateTime.now(),
       );
 
@@ -116,6 +120,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
+      resizeToAvoidBottomInset: true,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
@@ -153,7 +158,9 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
             ),
         ],
       ),
-      body: _images.isEmpty ? _buildImagePicker() : _buildEditor(),
+      body: _images.isEmpty 
+          ? _buildImagePicker() 
+          : SingleChildScrollView(child: _buildEditor()),
     );
   }
 
@@ -177,7 +184,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                 label: 'Camera',
                 onTap: _openCamera,
               ),
-              const SizedBox(width: 16),
+              const Padding(padding: EdgeInsets.only(left: 16)),
               _ActionChip(
                 icon: Icons.photo_library,
                 label: 'Gallery',
@@ -284,19 +291,24 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
           ),
         ),
 
-        // Large preview of selected image
+        // Large preview of selected image - wrap in SizedBox with fixed height 250
         if (_images.isNotEmpty && _selectedImageIndex < _images.length)
-          Container(
+          SizedBox(
+            height: 250,
             width: double.infinity,
-            height: MediaQuery.of(context).size.width,
-            decoration: BoxDecoration(
-              color: Colors.grey[200],
-              image: DecorationImage(
-                image: FileImage(File(_images[_selectedImageIndex].path)),
-                fit: BoxFit.cover,
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.grey[200],
+                image: DecorationImage(
+                  image: FileImage(File(_images[_selectedImageIndex].path)),
+                  fit: BoxFit.cover,
+                ),
               ),
             ),
           ),
+
+        // Tag Your Cat Section
+        _buildTagYourCatSection(),
 
         // Caption input
         Padding(
@@ -315,6 +327,100 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
             ),
           ),
         ),
+      ],
+    );
+  }
+
+  Widget _buildTagYourCatSection() {
+    final userCatsAsync = ref.watch(userCatsProvider);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Text(
+            'Tag Your Cat',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+              color: headingColor,
+            ),
+          ),
+        ),
+        userCatsAsync.when(
+          data: (cats) {
+            if (cats.isEmpty) {
+              return const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                child: Text(
+                  'No registered cats found. Register a cat under "My Cats" to tag them!',
+                  style: TextStyle(color: Colors.grey, fontSize: 13),
+                ),
+              );
+            }
+            return SizedBox(
+              height: 50,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                itemCount: cats.length,
+                itemBuilder: (context, index) {
+                  final cat = cats[index];
+                  final isSelected = _selectedCatIds.contains(cat.id);
+
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                    child: FilterChip(
+                      selected: isSelected,
+                      checkmarkColor: Colors.white,
+                      selectedColor: brandPink,
+                      backgroundColor: Colors.grey[100],
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                        side: BorderSide(
+                          color: isSelected ? brandPink : Colors.grey[300]!,
+                        ),
+                      ),
+                      avatar: CircleAvatar(
+                        backgroundImage: NetworkImage(cat.imageUrl),
+                      ),
+                      label: Text(
+                        cat.name,
+                        style: TextStyle(
+                          color: isSelected ? Colors.white : Colors.black87,
+                          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                        ),
+                      ),
+                      onSelected: (selected) {
+                        setState(() {
+                          if (selected) {
+                            _selectedCatIds.add(cat.id);
+                          } else {
+                            _selectedCatIds.remove(cat.id);
+                          }
+                        });
+                      },
+                    ),
+                  );
+                },
+              ),
+            );
+          },
+          loading: () => const Padding(
+            padding: EdgeInsets.all(16),
+            child: SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(strokeWidth: 2, color: brandPink),
+            ),
+          ),
+          error: (err, _) => Padding(
+            padding: const EdgeInsets.all(16),
+            child: Text('Error loading cats: $err', style: const TextStyle(color: Colors.red)),
+          ),
+        ),
+        const Divider(height: 24),
       ],
     );
   }

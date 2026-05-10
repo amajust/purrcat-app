@@ -19,6 +19,7 @@ class Post {
   /// [images]. Use [imageUrls] for remote URLs.
   final List<String> images;
 
+  final List<String> taggedCatIds;
   final DateTime createdAt;
   int likes;
   final int comments;
@@ -34,6 +35,7 @@ class Post {
     this.imageUrls = const [],
     this.localImagePaths = const [],
     this.images = const [],
+    this.taggedCatIds = const [],
     required this.createdAt,
     this.likes = 0,
     this.comments = 0,
@@ -57,6 +59,7 @@ class Post {
       imageUrls: _listFromDynamic(data['imageUrls']) ?? const [],
       localImagePaths: _listFromDynamic(data['localImagePaths']) ?? const [],
       images: _listFromDynamic(data['images']) ?? const [],
+      taggedCatIds: _listFromDynamic(data['taggedCatIds']) ?? const [],
       createdAt: _toDateTime(data['createdAt']),
       likes: (data['likeCount'] as num?)?.toInt() ?? 0,
       comments: (data['commentCount'] as num?)?.toInt() ?? 0,
@@ -77,6 +80,7 @@ class Post {
       'content': content,
       'imageUrls': imageUrls,
       'images': images,
+      'taggedCatIds': taggedCatIds,
       'createdAt': createdAt,
       'likeCount': likes,
       'commentCount': comments,
@@ -109,6 +113,7 @@ class Post {
     List<String>? imageUrls,
     List<String>? localImagePaths,
     List<String>? images,
+    List<String>? taggedCatIds,
     DateTime? createdAt,
     int? likes,
     int? comments,
@@ -124,6 +129,7 @@ class Post {
       imageUrls: imageUrls ?? this.imageUrls,
       localImagePaths: localImagePaths ?? this.localImagePaths,
       images: images ?? this.images,
+      taggedCatIds: taggedCatIds ?? this.taggedCatIds,
       createdAt: createdAt ?? this.createdAt,
       likes: likes ?? this.likes,
       comments: comments ?? this.comments,

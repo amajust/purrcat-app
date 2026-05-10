@@ -6,7 +6,7 @@ import 'package:provider/provider.dart';
 import '../../feed/views/feed_screen.dart';
 import '../../marketplace/views/marketplace_screen.dart';
 import '../../profile/views/profile_screen.dart';
-import '../../services/views/services_screen.dart';
+import '../../cat_registry/views/cat_registry_screen.dart';
 import '../../../../ui/shared/bottom_nav_component.dart';
 import '../../../../ui/shared/login_modal.dart';
 import '../../../../ui/core/theme.dart';
@@ -25,23 +25,24 @@ class _HomeScreenState extends State<HomeScreen> {
   final List<Widget> _screens = [
     const FeedScreen(),
     const MarketplaceScreen(),
-    const ServicesScreen(),
+    const CatRegistryScreen(),
     const ProfileScreen(),
   ];
 
   void _onTabTapped(int index) {
-    if (index == 3) {
+    if (index == 2 || index == 3) {
       final auth = context.read<AuthProvider>();
       if (auth.isAuthenticated) {
-        setState(() => _currentIndex = 3);
+        setState(() => _currentIndex = index);
       } else {
         showLoginModal(context, onLoginSuccess: () {
-          setState(() => _currentIndex = 3);
+          setState(() => _currentIndex = index);
         });
         return;
       }
+    } else {
+      setState(() => _currentIndex = index);
     }
-    setState(() => _currentIndex = index);
   }
 
   void _onFabPressed() {

@@ -132,7 +132,7 @@ class CatRegistryScreen extends StatelessWidget {
         child: Column(
           children: [
             GestureDetector(
-              onTap: () => context.push('/cat-detail/${cat.id}'),
+              onTap: () => context.push('/cat-detail/${cat.id}?ownerId=${cat.ownerId}'),
               behavior: HitTestBehavior.opaque,
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,

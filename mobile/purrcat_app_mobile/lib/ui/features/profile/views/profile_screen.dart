@@ -332,47 +332,56 @@ class ProfileScreen extends StatelessWidget {
                   }
 
                   final cat = cats[index];
-                  return Container(
-                    width: 90,
-                    margin: const EdgeInsets.only(right: 12),
-                    child: Column(
-                      children: [
-                        Stack(
-                          children: [
-                            CircleAvatar(
-                              radius: 30,
-                              backgroundColor: brandPink.withOpacity(0.08),
-                              backgroundImage: cat.imageUrl.isNotEmpty ? NetworkImage(cat.imageUrl) : null,
-                              child: cat.imageUrl.isEmpty ? const Icon(Icons.pets, color: brandPink, size: 24) : null,
-                            ),
-                            if (cat.isPedigreeVerified)
-                              Positioned(
-                                bottom: 0,
-                                right: 0,
-                                child: Container(
-                                  padding: const EdgeInsets.all(2),
-                                  decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
-                                  child: const Icon(Icons.verified, size: 14, color: Colors.green),
-                                ),
+                  final auth = context.read<AuthProvider>();
+                  final ownerId = cat.ownerId.isNotEmpty ? cat.ownerId : (auth.currentUser?.uid ?? '');
+
+                  return GestureDetector(
+                    onTap: () {
+                      context.push('/cat-detail/${cat.id}?ownerId=$ownerId');
+                    },
+                    behavior: HitTestBehavior.opaque,
+                    child: Container(
+                      width: 90,
+                      margin: const EdgeInsets.only(right: 12),
+                      child: Column(
+                        children: [
+                          Stack(
+                            children: [
+                              CircleAvatar(
+                                radius: 30,
+                                backgroundColor: brandPink.withOpacity(0.08),
+                                backgroundImage: cat.imageUrl.isNotEmpty ? NetworkImage(cat.imageUrl) : null,
+                                child: cat.imageUrl.isEmpty ? const Icon(Icons.pets, color: brandPink, size: 24) : null,
                               ),
-                          ],
-                        ),
-                        const SizedBox(height: 6),
-                        Text(
-                          cat.name,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: headingColor),
-                        ),
-                        Text(
-                          cat.breed,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(fontSize: 10, color: bodyColor),
-                        ),
-                      ],
+                              if (cat.isPedigreeVerified)
+                                Positioned(
+                                  bottom: 0,
+                                  right: 0,
+                                  child: Container(
+                                    padding: const EdgeInsets.all(2),
+                                    decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
+                                    child: const Icon(Icons.verified, size: 14, color: Colors.green),
+                                  ),
+                                ),
+                            ],
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            cat.name,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: headingColor),
+                          ),
+                          Text(
+                            cat.breed,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(fontSize: 10, color: bodyColor),
+                          ),
+                        ],
+                      ),
                     ),
                   );
                 },
